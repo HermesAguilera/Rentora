@@ -1,40 +1,76 @@
-# Rentora Backend MVP
+# Backend MVP de Rentora
 
-Rentora is a peer-to-peer storage rental platform in Honduras. This repository contains the Laravel 11/12 backend.
+Rentora es una plataforma de alquiler de espacios de almacenamiento entre particulares (peer-to-peer) en Honduras. Este repositorio contiene el backend desarrollado en Laravel 11/12.
 
-## Setup Instructions
+---
 
-1. Clone the repository and navigate into it.
-2. Run `composer install`.
-3. Copy `.env.example` to `.env` and configure your database and environment variables.
-4. Generate application key: `php artisan key:generate`.
-5. Run migrations and seed the database: `php artisan migrate --seed`.
-6. Start the development server using Laravel Sail: `./vendor/bin/sail up -d` or using `php artisan serve`.
+## 🚀 Instrucciones de Configuración
 
-## Architecture Overview
+1. Clona el repositorio y navega dentro de él.
+2. Ejecuta:
+
+   ```bash
+   composer install
+   ```
+
+3. Copia el archivo `.env.example` a `.env` y configura tu base de datos y variables de entorno.
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Genera la clave de la aplicación:
+
+   ```bash
+   php artisan key:generate
+   ```
+
+5. Ejecuta las migraciones y los seeders de la base de datos:
+
+   ```bash
+   php artisan migrate --seed
+   ```
+
+6. Inicia el servidor de desarrollo usando Laravel Sail:
+
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+
+   O utilizando el servidor integrado de Laravel:
+
+   ```bash
+   php artisan serve
+   ```
+
+---
+
+## 🏗️ Vista General de la Arquitectura
 
 ```text
 +-----------------------+
-|   Client (Web/Mobile) |
+|   Cliente (Web/Móvil) |
 +-----------+-----------+
+            |
             | HTTP / REST
+            |
 +-----------v-----------+
-|    Nginx / Router     |
+|     Nginx / Router    |
 +-----------+-----------+
             |
 +-----------v-----------+
 | Laravel App (Rentora) |
 |                       |
 |  +-----------------+  |
-|  |   Controllers   |  |
+|  |  Controladores  |  |
 |  +--------+--------+  |
 |           |           |
 |  +--------v--------+  |
-|  |    Services     |  | <--- Business Logic
+|  |    Servicios    |  |  <- Lógica de Negocio
 |  +--------+--------+  |
 |           |           |
 |  +--------v--------+  |
-|  |     Models      |  | <--- Data Access / Repository
+|  |     Modelos     |  |  <- Acceso a Datos / Repositorio
 |  +--------+--------+  |
 +-----------+-----------+
             |
@@ -45,31 +81,93 @@ Rentora is a peer-to-peer storage rental platform in Honduras. This repository c
 +--------+      +-------+
 ```
 
-## Service/Repository Pattern
+---
 
-We utilize the **Service Pattern** to decouple our application's business logic from the HTTP layer (Controllers). 
+## 📐 Patrón Servicio/Repositorio
 
-- **Controllers**: Handle HTTP requests, perform validation (via FormRequests), and format responses (via API Resources). They do NOT contain complex business rules.
-- **Services**: Classes like `BookingService` and `SpaceService` contain the core business logic. They process data, coordinate state transitions (e.g., `BookingStateMachine`), and dispatch events.
-- **Models/Repositories**: Eloquent models are used directly for data access, acting as an implicit repository layer for simplicity in this MVP while keeping queries expressive.
+Utilizamos el **Patrón de Servicio** para desacoplar la lógica de negocio de la capa HTTP (Controladores).
 
-## API Endpoints
+### Controladores
 
-| Group | Method | Endpoint | Description |
-|---|---|---|---|
-| **Auth** | POST | `/api/v1/auth/register` | Register new user |
-| | POST | `/api/v1/auth/login` | Authenticate user |
-| | POST | `/api/v1/auth/logout` | Revoke token |
-| **Spaces** | GET | `/api/v1/spaces` | List active spaces |
-| | POST | `/api/v1/spaces` | Create space (draft) |
-| | POST | `/api/v1/spaces/{uuid}/publish` | Submit space for review |
-| **Bookings** | POST | `/api/v1/bookings` | Create booking request |
-| | POST | `/api/v1/bookings/{uuid}/confirm` | Host confirms booking |
-| | POST | `/api/v1/bookings/{uuid}/cancel` | Cancel a booking |
-| **Reviews** | POST | `/api/v1/reviews` | Submit a review for completed booking |
-| | GET | `/api/v1/spaces/{uuid}/reviews` | Get space reviews |
-| **Admin** | GET | `/api/v1/admin/stats` | Dashboard statistics |
-| | POST | `/api/v1/admin/spaces/{uuid}/approve`| Approve pending space |
-| | POST | `/api/v1/admin/users/{uuid}/suspend` | Suspend user account |
+- Manejan las solicitudes HTTP.
+- Realizan validaciones mediante **Form Requests**.
+- Formatean respuestas mediante **API Resources**.
+- No contienen reglas de negocio complejas.
 
-For full details, please refer to the OpenAPI documentation available at `/docs/api` (powered by Scramble).
+### Servicios
+
+Clases como:
+
+- `BookingService`
+- `SpaceService`
+
+Responsabilidades:
+
+- Contener la lógica central del negocio.
+- Procesar datos.
+- Coordinar transiciones de estado (por ejemplo, `BookingStateMachine`).
+- Despachar eventos del sistema.
+
+### Modelos / Repositorios
+
+Los modelos de Eloquent se utilizan directamente para el acceso a datos, actuando como una capa de repositorio implícita para mantener la simplicidad del MVP sin perder la expresividad de las consultas.
+
+---
+
+## 📡 API Endpoints
+
+### Auth
+
+| Método | Endpoint | Descripción |
+|---------|----------|-------------|
+| POST | `/api/v1/auth/register` | Registrar un nuevo usuario |
+| POST | `/api/v1/auth/login` | Autenticar usuario |
+| POST | `/api/v1/auth/logout` | Revocar token |
+
+### Spaces
+
+| Método | Endpoint | Descripción |
+|---------|----------|-------------|
+| GET | `/api/v1/spaces` | Listar espacios activos |
+| POST | `/api/v1/spaces` | Crear espacio (borrador) |
+| POST | `/api/v1/spaces/{uuid}/publish` | Enviar espacio para revisión |
+
+### Bookings
+
+| Método | Endpoint | Descripción |
+|---------|----------|-------------|
+| POST | `/api/v1/bookings` | Crear solicitud de reserva |
+| POST | `/api/v1/bookings/{uuid}/confirm` | El anfitrión confirma la reserva |
+| POST | `/api/v1/bookings/{uuid}/cancel` | Cancelar una reserva |
+
+### Reviews
+
+| Método | Endpoint | Descripción |
+|---------|----------|-------------|
+| POST | `/api/v1/reviews` | Enviar una reseña para una reserva completada |
+| GET | `/api/v1/spaces/{uuid}/reviews` | Obtener las reseñas de un espacio |
+
+### Admin
+
+| Método | Endpoint | Descripción |
+|---------|----------|-------------|
+| GET | `/api/v1/admin/stats` | Estadísticas del panel de control |
+| POST | `/api/v1/admin/spaces/{uuid}/approve` | Aprobar espacio pendiente |
+| POST | `/api/v1/admin/users/{uuid}/suspend` | Suspender cuenta de usuario |
+
+---
+
+## 🛠️ Stack Tecnológico
+
+- **Laravel 11/12**
+- **MySQL**
+- **Redis**
+- **Laravel Sanctum** (Autenticación API)
+- **Laravel Sail** (Entorno de desarrollo)
+- **Nginx** (Proxy Web)
+
+---
+
+## 📄 Licencia
+
+Proyecto desarrollado como MVP para Rentora.
