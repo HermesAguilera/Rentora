@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+define('LARAVEL_START', microtime(true));
+
+// Registrar el cargador automático de paquetes de Bootstrap
+if (file_exists($packageState = __DIR__.'/storage/framework/package.php')) {
+    require $packageState;
+}
+
+require __DIR__.'/vendor/autoload.php';
+
+// Arrancar Laravel y procesar el comando de consola
+$status = (require_once __DIR__.'/bootstrap/app.php')
+    ->handleCommand(new Symfony\Component\Console\Input\ArgvInput);
+
+exit($status);
