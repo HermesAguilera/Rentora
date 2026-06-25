@@ -67,7 +67,7 @@ rentora/
 │
 ├── backend/           # API Laravel
 ├── frontend/          # Aplicación web
-├── mobile/            # Aplicación móvil (opcional)
+├── mobile/            # Aplicación móvil (Próximamente)
 ├── docs/              # Documentación
 ├── docker/            # Configuración Docker
 └── README.md
