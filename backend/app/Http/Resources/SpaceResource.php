@@ -29,7 +29,7 @@ class SpaceResource extends JsonResource
         ];
 
         if ($isOwner) {
-            $data['address'] = $this->address;
+            $data['address'] = $this->address_line;
             $data['is_complete'] = $this->isComplete();
             $data['view_count'] = $this->view_count;
         }
@@ -39,8 +39,8 @@ class SpaceResource extends JsonResource
 
     protected function getSizeDescription(): ?string
     {
-        if ($this->width && $this->length && $this->height) {
-            return "{$this->width}m × {$this->length}m × {$this->height}m";
+        if ($this->width_meters && $this->depth_meters && $this->height_meters) {
+            return "{$this->width_meters}m × {$this->depth_meters}m × {$this->height_meters}m";
         }
         return null;
     }
@@ -56,7 +56,7 @@ class SpaceResource extends JsonResource
 
     protected function isComplete(): bool
     {
-        $required = ['title', 'description', 'price_per_month', 'address', 'type'];
+        $required = ['title', 'description', 'price_per_month', 'address_line', 'type'];
         foreach ($required as $field) {
             if (empty($this->$field)) {
                 return false;

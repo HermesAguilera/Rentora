@@ -23,6 +23,11 @@ class Review extends Model
 {
     use HasUuids, HasFactory;
 
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
     protected $fillable = [
         'booking_id',
         'reviewer_id',

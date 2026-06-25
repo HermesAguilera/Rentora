@@ -9,7 +9,7 @@ uses(RefreshDatabase::class);
 
 test('admin can approve a space', function () {
     $this->actingAsAdmin();
-    $space = Space::factory()->create(['status' => SpaceStatus::PENDING]);
+    $space = Space::factory()->create(['status' => SpaceStatus::PENDING_REVIEW]);
 
     $response = $this->postJson("/api/v1/admin/spaces/{$space->uuid}/approve");
 
@@ -19,7 +19,7 @@ test('admin can approve a space', function () {
 
 test('admin can reject a space with reason', function () {
     $this->actingAsAdmin();
-    $space = Space::factory()->create(['status' => SpaceStatus::PENDING]);
+    $space = Space::factory()->create(['status' => SpaceStatus::PENDING_REVIEW]);
 
     $response = $this->postJson("/api/v1/admin/spaces/{$space->uuid}/reject", [
         'rejection_reason' => 'Photos are blurry',

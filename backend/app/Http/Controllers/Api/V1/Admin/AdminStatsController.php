@@ -22,7 +22,7 @@ class AdminStatsController extends Controller
                 'spaces' => [
                     'total' => Space::count(),
                     'active' => Space::where('status', \App\Enums\SpaceStatus::ACTIVE)->count(),
-                    'pending_review' => Space::where('status', \App\Enums\SpaceStatus::PENDING)->count(),
+                    'pending_review' => Space::where('status', \App\Enums\SpaceStatus::PENDING_REVIEW)->count(),
                 ],
                 'bookings' => [
                     'total' => Booking::count(),
@@ -32,10 +32,10 @@ class AdminStatsController extends Controller
                         ->count(),
                 ],
                 'revenue' => [
-                    'total_platform_fees' => Booking::where('status', \App\Enums\BookingStatus::COMPLETED)->sum('platform_fee'),
+                    'total_platform_fees' => Booking::where('status', \App\Enums\BookingStatus::COMPLETED)->sum('platform_fee_amount'),
                     'this_month' => Booking::where('status', \App\Enums\BookingStatus::COMPLETED)
                         ->whereMonth('end_date', now()->month)
-                        ->sum('platform_fee'),
+                        ->sum('platform_fee_amount'),
                 ]
             ];
         }));

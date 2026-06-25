@@ -28,11 +28,6 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->configureRateLimiting();
-
-        if (! $this->app->isProduction() && ! $this->app->runningInConsole()) {
-            // auto-generate on boot in local/staging
-            // \Illuminate\Support\Facades\Artisan::call('l5-swagger:generate');
-        }
     }
 
     /**

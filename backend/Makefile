@@ -16,7 +16,3 @@ analyse:
 
 fresh:
 	docker-compose exec app php artisan migrate:fresh --seed
-
-docs:
-	php artisan l5-swagger:generate
-	@echo "Docs available at: http://localhost:8000/api/documentation"

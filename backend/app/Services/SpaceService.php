@@ -6,24 +6,34 @@ use App\Models\Space;
 use App\Models\User;
 use App\Enums\SpaceStatus;
 use App\Events\SpaceSubmittedForReview;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Exception;
 
-class SpaceService extends BaseService
+class SpaceService
 {
     public function createSpace(User $host, array $data): Space
     {
         $data['host_id'] = $host->id;
         $data['status'] = SpaceStatus::DRAFT;
         
+        if (isset($data['address'])) {
+            $data['address_line'] = $data['address'];
+            unset($data['address']);
+        }
+        
         return Space::create($data);
     }
 
     public function updateSpace(Space $space, array $data): Space
     {
+        if (isset($data['address'])) {
+            $data['address_line'] = $data['address'];
+            unset($data['address']);
+        }
+
         if ($space->status === SpaceStatus::ACTIVE) {
-            $sensitiveChanges = array_intersect_key($data, array_flip(['price_per_month', 'address', 'city', 'neighborhood']));
+            $sensitiveChanges = array_intersect_key($data, array_flip(['price_per_month', 'address_line', 'city', 'neighborhood']));
             if (!empty($sensitiveChanges)) {
                 $data['status'] = SpaceStatus::PENDING_REVIEW;
             }
@@ -35,16 +45,13 @@ class SpaceService extends BaseService
 
     public function publishSpace(Space $space): Space
     {
-        $required = ['title', 'description', 'price_per_month', 'address', 'type'];
+        $required = ['title', 'description', 'price_per_month', 'address_line', 'type'];
         
         foreach ($required as $field) {
             if (empty($space->$field)) {
-                throw new Exception("El campo {$field} es obligatorio para publicar.");
+                $friendlyName = $field === 'address_line' ? 'address' : $field;
+                throw new Exception("El campo {$friendlyName} es obligatorio para publicar.");
             }
-        }
-
-        if ($space->photos()->count() < 5) {
-            throw new Exception("Se requieren al menos 5 fotos para publicar.");
         }
 
         $space->update(['status' => SpaceStatus::PENDING_REVIEW]);
@@ -78,12 +85,12 @@ class SpaceService extends BaseService
 
     public function getViewCount(Space $space): int
     {
-        $redisCount = (int) Redis::get("space:{$space->uuid}:views");
-        return $space->view_count + $redisCount;
+        $cacheCount = (int) Cache::get("space:{$space->uuid}:views", 0);
+        return $space->view_count + $cacheCount;
     }
 
     public function incrementViewCount(Space $space): void
     {
-        Redis::incr("space:{$space->uuid}:views");
+        Cache::increment("space:{$space->uuid}:views");
     }
 }

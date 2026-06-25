@@ -16,14 +16,15 @@ class BookingService
 
         $booking = new Booking([
             'renter_id' => $renter->id,
+            'host_id' => $space->host_id,
             'space_id' => $space->id,
             'start_date' => $data['start_date'],
             'months_duration' => $data['months_duration'],
             'end_date' => Carbon::parse($data['start_date'])->addMonths($data['months_duration']),
             'price_per_month' => $space->price_per_month,
-            'total_price' => $pricing['total'],
-            'platform_fee' => $pricing['fee'],
-            'host_payout' => $pricing['payout'],
+            'total_amount' => $pricing['total'],
+            'platform_fee_amount' => $pricing['fee'],
+            'host_payout_amount' => $pricing['payout'],
             'status' => BookingStatus::PENDING,
         ]);
         

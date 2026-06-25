@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (Throwable $e, Request $request) {
+            \Illuminate\Support\Facades\Log::error('Exception caught', ['class' => get_class($e), 'code' => $e->getCode(), 'message' => $e->getMessage()]);
+
             if ($request->is('api/*') || $request->wantsJson()) {
                 $status = 500;
                 $message = 'Server Error';
@@ -50,6 +52,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 } else {
                     $message = config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.';
                 }
+
+                // Ensure status is a valid HTTP status code
+                $status = ($status >= 100 && $status <= 599) ? $status : 500;
 
                 return response()->json([
                     'success' => false,

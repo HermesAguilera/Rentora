@@ -19,6 +19,11 @@ class SpacePhoto extends Model
 {
     use HasUuids, HasFactory;
 
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
     protected $fillable = [
         'space_id',
         'path',

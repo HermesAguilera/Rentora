@@ -13,7 +13,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
-class AuthService extends BaseService
+class AuthService
 {
     public function register(array $data): array
     {

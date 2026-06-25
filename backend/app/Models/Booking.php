@@ -37,6 +37,11 @@ class Booking extends Model
 {
     use HasUuids, SoftDeletes, HasFactory;
 
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
     protected $fillable = [
         'space_id',
         'renter_id',

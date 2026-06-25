@@ -10,14 +10,14 @@ class AdminSpaceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Space::query()->with('host');
+        $query = Space::query()->with('host')->latest();
 
         if ($request->has('status')) {
             $query->where('status', $request->query('status'));
         }
 
         if ($request->has('host_id')) {
-            $query->where('user_id', $request->query('host_id'));
+            $query->where('host_id', $request->query('host_id'));
         }
 
         if ($request->has('city')) {

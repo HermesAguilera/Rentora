@@ -13,8 +13,8 @@ class SpaceRepository
         $query = Space::query()
             ->select([
                 'id', 'uuid', 'host_id', 'title', 'type', 'price_per_month',
-                'city', 'neighborhood', 'width', 'length', 'height', 'status',
-                'view_count', 'average_rating', 'review_count', 'created_at'
+                'city', 'neighborhood', 'width_meters', 'depth_meters', 'height_meters', 'status',
+                'created_at'
             ])
             ->where('status', SpaceStatus::ACTIVE)
             ->with([
@@ -29,8 +29,9 @@ class SpaceRepository
               ->when(isset($filters['neighborhood']), fn($q) => $q->where('neighborhood', $filters['neighborhood']))
               ->when(isset($filters['min_price']), fn($q) => $q->where('price_per_month', '>=', $filters['min_price']))
               ->when(isset($filters['max_price']), fn($q) => $q->where('price_per_month', '<=', $filters['max_price']))
-              ->when(isset($filters['min_width']), fn($q) => $q->where('width', '>=', $filters['min_width']))
-              ->when(isset($filters['min_height']), fn($q) => $q->where('height', '>=', $filters['min_height']))
+              ->when(isset($filters['min_width']), fn($q) => $q->where('width_meters', '>=', $filters['min_width']))
+              ->when(isset($filters['min_height']), fn($q) => $q->where('height_meters', '>=', $filters['min_height']))
+              ->when(isset($filters['min_length']), fn($q) => $q->where('depth_meters', '>=', $filters['min_length']))
               ->when(isset($filters['amenities']), function ($q) use ($filters) {
                   // Assuming amenities is JSON column in spaces table
                   foreach ((array) $filters['amenities'] as $amenity) {
@@ -43,7 +44,6 @@ class SpaceRepository
         match ($sort) {
             'price_asc' => $query->orderBy('price_per_month', 'asc')->orderBy('id', 'asc'),
             'price_desc' => $query->orderBy('price_per_month', 'desc')->orderBy('id', 'desc'),
-            'rating' => $query->orderBy('average_rating', 'desc')->orderBy('id', 'desc'),
             default => $query->orderBy('created_at', 'desc')->orderBy('id', 'desc'),
         };
 

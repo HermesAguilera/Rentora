@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->string('password');
+            $table->rememberToken();
             $table->string('role')->default('renter');
             $table->string('status')->default('pending_verification');
             $table->string('avatar_path')->nullable();

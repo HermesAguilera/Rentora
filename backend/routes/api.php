@@ -37,14 +37,14 @@ Route::prefix('v1')->group(function () {
 
     // User Routes
     Route::prefix('users')->group(function () {
-        Route::get('{user:uuid}', [UserController::class, 'show']);
-
         Route::middleware(['auth:sanctum', EnsureUserIsActive::class])->group(function () {
             Route::get('me', [UserController::class, 'me']);
             Route::patch('me', [UserController::class, 'updateProfile']);
             Route::post('me/avatar', [UserController::class, 'uploadAvatar']);
             Route::get('me/stats', [UserController::class, 'stats']);
         });
+
+        Route::get('{user:uuid}', [UserController::class, 'show']);
     });
 
     // Space Routes

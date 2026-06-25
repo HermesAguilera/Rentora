@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             'first_name' => 'Admin',
             'last_name' => 'Rentora',
             'email' => 'admin@rentora.com',
+            'password' => bcrypt('rentora_secure_password_123!'),
         ]);
 
         // 5 Hosts

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Space;
 
 use Illuminate\Routing\Controller;
-use OpenApi\Annotations as OA;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Space;
 use App\Services\SpaceService;
 use App\Repositories\SpaceRepository;
@@ -18,6 +18,8 @@ use App\Enums\SpaceStatus;
 
 class SpaceController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(
         private SpaceService $spaceService,
         private SpaceRepository $spaceRepository
@@ -25,21 +27,13 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Get(
      *   path="/api/v1/spaces",
      *   tags={"Spaces"},
      *   summary="List active spaces",
      *   description="Browse publicly active storage spaces. Can be filtered by various parameters.",
      *   operationId="spaceIndex",
-     *   @OA\Parameter(name="city", in="query", required=false, @OA\Schema(type="string")),
-     *   @OA\Parameter(name="type", in="query", required=false, @OA\Schema(type="string", enum={"garage","room","warehouse"})),
-     *   @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
-     *   @OA\Response(
      *     response=200,
      *     description="List of spaces",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Space")),
-     *       @OA\Property(property="meta", type="object")
      *     )
      *   )
      * )
@@ -64,21 +58,15 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Get(
      *   path="/api/v1/spaces/{uuid}",
      *   tags={"Spaces"},
      *   summary="Get space details",
      *   description="Returns detailed information about a specific space, including availability calendar.",
      *   operationId="spaceShow",
-     *   @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string", format="uuid")),
-     *   @OA\Response(
      *     response=200,
      *     description="Space details",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="data", ref="#/components/schemas/Space")
      *     )
      *   ),
-     *   @OA\Response(response=404, description="Not Found")
      * )
      */
     public function show(Request $request, Space $space): JsonResponse
@@ -109,32 +97,20 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Post(
      *   path="/api/v1/spaces",
      *   tags={"Spaces"},
      *   summary="Create a new space",
      *   description="Creates a new space in 'draft' status.",
      *   operationId="spaceStore",
      *   security={{"sanctum": {}}},
-     *   @OA\RequestBody(
      *     required=true,
-     *     @OA\JsonContent(
      *       required={"title","type","price_per_month"},
-     *       @OA\Property(property="title", type="string", example="Garage in City Center"),
-     *       @OA\Property(property="type", type="string", enum={"garage","room","warehouse"}, example="garage"),
-     *       @OA\Property(property="price_per_month", type="number", example=100)
      *     )
      *   ),
-     *   @OA\Response(
      *     response=201,
      *     description="Space created successfully",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="message", type="string", example="Espacio creado exitosamente como borrador."),
-     *       @OA\Property(property="data", ref="#/components/schemas/Space")
      *     )
      *   ),
-     *   @OA\Response(response=401, description="Unauthenticated"),
-     *   @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/Error"))
      * )
      */
     public function store(CreateSpaceRequest $request): JsonResponse
@@ -147,33 +123,19 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Patch(
      *   path="/api/v1/spaces/{uuid}",
      *   tags={"Spaces"},
      *   summary="Update a space",
      *   description="Updates space properties. Cannot update if there are active bookings.",
      *   operationId="spaceUpdate",
      *   security={{"sanctum": {}}},
-     *   @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string", format="uuid")),
-     *   @OA\RequestBody(
      *     required=true,
-     *     @OA\JsonContent(
-     *       @OA\Property(property="title", type="string", example="Updated Title")
      *     )
      *   ),
-     *   @OA\Response(
      *     response=200,
      *     description="Space updated successfully",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="message", type="string", example="Espacio actualizado exitosamente."),
-     *       @OA\Property(property="data", ref="#/components/schemas/Space")
      *     )
      *   ),
-     *   @OA\Response(response=401, description="Unauthenticated"),
-     *   @OA\Response(response=403, description="Forbidden"),
-     *   @OA\Response(response=404, description="Not Found"),
-     *   @OA\Response(response=409, description="Conflict - active bookings exist"),
-     *   @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/Error"))
      * )
      */
     public function update(UpdateSpaceRequest $request, Space $space): JsonResponse
@@ -190,25 +152,16 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Delete(
      *   path="/api/v1/spaces/{uuid}",
      *   tags={"Spaces"},
      *   summary="Delete a space",
      *   description="Deletes a space. Cannot delete if there are pending or active bookings.",
      *   operationId="spaceDestroy",
      *   security={{"sanctum": {}}},
-     *   @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string", format="uuid")),
-     *   @OA\Response(
      *     response=200,
      *     description="Space deleted successfully",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="message", type="string", example="Espacio eliminado exitosamente.")
      *     )
      *   ),
-     *   @OA\Response(response=401, description="Unauthenticated"),
-     *   @OA\Response(response=403, description="Forbidden"),
-     *   @OA\Response(response=404, description="Not Found"),
-     *   @OA\Response(response=409, description="Conflict")
      * )
      */
     public function destroy(Request $request, Space $space): JsonResponse
@@ -225,26 +178,16 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Post(
      *   path="/api/v1/spaces/{uuid}/publish",
      *   tags={"Spaces"},
      *   summary="Submit space for review",
      *   description="Moves a draft space to pending status for admin review.",
      *   operationId="spacePublish",
      *   security={{"sanctum": {}}},
-     *   @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string", format="uuid")),
-     *   @OA\Response(
      *     response=200,
      *     description="Space published",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="message", type="string", example="Espacio enviado a revisión exitosamente."),
-     *       @OA\Property(property="data", ref="#/components/schemas/Space")
      *     )
      *   ),
-     *   @OA\Response(response=400, description="Bad request (missing photos, etc)"),
-     *   @OA\Response(response=401, description="Unauthenticated"),
-     *   @OA\Response(response=403, description="Forbidden"),
-     *   @OA\Response(response=404, description="Not Found")
      * )
      */
     public function publish(Request $request, Space $space): JsonResponse
@@ -263,25 +206,16 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Post(
      *   path="/api/v1/spaces/{uuid}/pause",
      *   tags={"Spaces"},
      *   summary="Pause space listing",
      *   description="Temporarily hides an active space from public listings.",
      *   operationId="spacePause",
      *   security={{"sanctum": {}}},
-     *   @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string", format="uuid")),
-     *   @OA\Response(
      *     response=200,
      *     description="Space paused",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="message", type="string", example="Espacio pausado exitosamente.")
      *     )
      *   ),
-     *   @OA\Response(response=400, description="Bad request (space not active)"),
-     *   @OA\Response(response=401, description="Unauthenticated"),
-     *   @OA\Response(response=403, description="Forbidden"),
-     *   @OA\Response(response=404, description="Not Found")
      * )
      */
     public function pause(Request $request, Space $space): JsonResponse
@@ -297,25 +231,16 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Post(
      *   path="/api/v1/spaces/{uuid}/reactivate",
      *   tags={"Spaces"},
      *   summary="Reactivate paused space",
      *   description="Makes a paused space public again.",
      *   operationId="spaceReactivate",
      *   security={{"sanctum": {}}},
-     *   @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string", format="uuid")),
-     *   @OA\Response(
      *     response=200,
      *     description="Space reactivated",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="message", type="string", example="Espacio reactivado exitosamente.")
      *     )
      *   ),
-     *   @OA\Response(response=400, description="Bad request (space not paused)"),
-     *   @OA\Response(response=401, description="Unauthenticated"),
-     *   @OA\Response(response=403, description="Forbidden"),
-     *   @OA\Response(response=404, description="Not Found")
      * )
      */
     public function reactivate(Request $request, Space $space): JsonResponse
@@ -331,24 +256,16 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Get(
      *   path="/api/v1/spaces/{uuid}/bookings",
      *   tags={"Spaces"},
      *   summary="Get space bookings",
      *   description="List all bookings for a specific space (Host only).",
      *   operationId="spaceBookings",
      *   security={{"sanctum": {}}},
-     *   @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string", format="uuid")),
-     *   @OA\Response(
      *     response=200,
      *     description="List of bookings",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Booking"))
      *     )
      *   ),
-     *   @OA\Response(response=401, description="Unauthenticated"),
-     *   @OA\Response(response=403, description="Forbidden"),
-     *   @OA\Response(response=404, description="Not Found")
      * )
      */
     public function bookings(Request $request, Space $space): JsonResponse
@@ -364,21 +281,16 @@ class SpaceController extends Controller
     }
 
     /**
-     * @OA\Get(
      *   path="/api/v1/me/spaces",
      *   tags={"Spaces"},
      *   summary="List my spaces",
      *   description="List all spaces owned by the authenticated user.",
      *   operationId="spaceMySpaces",
      *   security={{"sanctum": {}}},
-     *   @OA\Response(
      *     response=200,
      *     description="List of spaces",
-     *     @OA\JsonContent(
-     *       @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Space"))
      *     )
      *   ),
-     *   @OA\Response(response=401, description="Unauthenticated")
      * )
      */
     public function mySpaces(Request $request): JsonResponse

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
-class UserService extends BaseService
+class UserService
 {
     public function updateProfile(User $user, array $data): User
     {

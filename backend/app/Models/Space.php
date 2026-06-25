@@ -45,6 +45,11 @@ class Space extends Model
 {
     use HasUuids, SoftDeletes, HasFactory;
 
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
     protected $fillable = [
         'host_id',
         'title',
