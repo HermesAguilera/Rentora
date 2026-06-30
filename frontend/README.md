@@ -54,3 +54,12 @@ frontend/
 ├── tsconfig.json           # Políticas de compilación de TypeScript
 └── vite.config.ts          # Pipeline de configuración de empaquetado Vite
 
+---
+
+## 🔗 Conexión con el Backend
+
+El frontend consume la API REST expuesta por el backend en Laravel. La URL base de la API se centraliza en `src/config/` para el cliente de Axios.
+
+La autenticación se maneja con **Laravel Sanctum**: tras el login, el token recibido se guarda en el contexto de autenticación y Axios lo inyecta automáticamente en cada petición mediante un interceptor (header `Authorization: Bearer <token>`).
+
+Cada módulo de `src/features/` consume sus endpoints a través de la capa de servicios en `src/services/`, manteniendo la lógica de red separada de los componentes de UI.
