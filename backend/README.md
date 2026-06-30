@@ -171,3 +171,5 @@ Los modelos de Eloquent se utilizan directamente para el acceso a datos, actuand
 ## 📄 Licencia
 
 Proyecto desarrollado como MVP para Rentora.
+
+<!-- Contribución de Donalson Hernandez -->
