@@ -19,7 +19,7 @@ export default function Navbar() {
           >
             Contact
           </a>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-">
             <a
               href="#login"
               className="rounded-[20px] bg-white px-[30px] py-[14px] font-['Quicksand',sans-serif] text-base font-semibold text-[#2b3073] shadow-sm"
