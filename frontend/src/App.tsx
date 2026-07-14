@@ -1,7 +1,16 @@
-import LandingPage from './features/landing/LandingPage';
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './config/queryClient';
+import AppRouter from './routes/AppRouter';
 
 function App() {
-  return <LandingPage />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
 }
 
 export default App;

@@ -690,3 +690,33 @@
 #58 {main}
 "} 
 [2026-06-24 16:51:57] local.ERROR: Exception caught {"class":"Illuminate\\Database\\Eloquent\\RelationNotFoundException","code":0,"message":"Call to undefined relationship [primaryPhoto] on model [App\\Models\\Space]."} 
+[2026-07-14 17:03:44] local.ERROR: Call to undefined function Illuminate\Support\mb_split() {"exception":"[object] (Error(code: 0): Call to undefined function Illuminate\\Support\\mb_split() at D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Support/Str.php:1641)
+[stacktrace]
+#0 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Support/Str.php(231): Illuminate/Support/Str::studly('App//Listeners//L...')
+#1 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Events/DiscoverEvents.php(104): Illuminate/Support/Str::camel('App//Listeners//L...')
+#2 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Events/DiscoverEvents.php(65): Illuminate/Foundation/Events/DiscoverEvents::classFromFile(Object(Symfony/Component/Finder/SplFileInfo), 'D://TAREAS UNAH ...')
+#3 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Events/DiscoverEvents.php(32): Illuminate/Foundation/Events/DiscoverEvents::getListenerEvents(Object(Symfony/Component/Finder/Finder), 'D://TAREAS UNAH ...')
+#4 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/EventServiceProvider.php(158): Illuminate/Foundation/Events/DiscoverEvents::within('D://TAREAS UNAH ...', 'D://TAREAS UNAH ...')
+#5 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php(822): Illuminate/Foundation/Support/Providers/EventServiceProvider->{closure:Illuminate/Foundation/Support/Providers/EventServiceProvider::discoverEvents():155}(Array, 'D://TAREAS UNAH ...', 0)
+#6 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/EventServiceProvider.php(155): Illuminate/Support/Collection->reduce(Object(Closure), Array)
+#7 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/EventServiceProvider.php(127): Illuminate/Foundation/Support/Providers/EventServiceProvider->discoverEvents()
+#8 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/EventServiceProvider.php(113): Illuminate/Foundation/Support/Providers/EventServiceProvider->discoveredEvents()
+#9 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/EventServiceProvider.php(58): Illuminate/Foundation/Support/Providers/EventServiceProvider->getEvents()
+#10 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate/Foundation/Support/Providers/EventServiceProvider->{closure:Illuminate/Foundation/Support/Providers/EventServiceProvider::register():57}()
+#11 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::{closure:Illuminate/Container/BoundMethod::call():35}()
+#12 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(83): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#13 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Object(Closure), Object(Closure))
+#14 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Object(Closure), Array, NULL)
+#15 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Support/ServiceProvider.php(128): Illuminate/Container/Container->call(Object(Closure))
+#16 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1148): Illuminate/Support/ServiceProvider->callBootingCallbacks()
+#17 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1132): Illuminate/Foundation/Application->bootProvider(Object(Illuminate/Foundation/Support/Providers/EventServiceProvider))
+#18 [internal function]: Illuminate/Foundation/Application->{closure:Illuminate/Foundation/Application::boot():1131}(Object(Illuminate/Foundation/Support/Providers/EventServiceProvider), 'Illuminate//Foun...')
+#19 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1131): array_walk(Array, Object(Closure))
+#20 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php(17): Illuminate/Foundation/Application->boot()
+#21 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(342): Illuminate/Foundation/Bootstrap/BootProviders->bootstrap(Object(Illuminate/Foundation/Application))
+#22 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(474): Illuminate/Foundation/Application->bootstrapWith(Array)
+#23 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(196): Illuminate/Foundation/Console/Kernel->bootstrap()
+#24 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#25 D:/TAREAS UNAH 2026/INDUSTRIA DEL SOFTWARE/Rentora/Rentora/backend/artisan(15): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#26 {main}
+"} 
