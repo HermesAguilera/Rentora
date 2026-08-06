@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import logoIcon from '../../assets/images/logo-icon.png';
 import rocketIcon from '../../assets/images/icon-rocket.svg';
 
@@ -20,19 +21,19 @@ export default function Navbar() {
             Contact
           </a>
           <div className="flex items-center gap-">
-            <a
-              href="#login"
+            <Link
+              to="/login"
               className="rounded-[20px] bg-white px-[30px] py-[14px] font-['Quicksand',sans-serif] text-base font-semibold text-[#2b3073] shadow-sm"
             >
               Iniciar sesión
-            </a>
-            <a
-              href="#register"
+            </Link>
+            <Link
+              to="/registro"
               className="flex items-center gap-2 rounded-[20px] bg-[#2b3073] px-[30px] py-[14px] font-['Quicksand',sans-serif] text-base font-semibold text-white"
             >
               <img src={rocketIcon} alt="" className="size-4" />
               Registro
-            </a>
+            </Link>
           </div>
         </nav>
       </div>
