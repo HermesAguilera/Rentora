@@ -1,3 +1,4 @@
+import { getMe, normalizePhone, splitName, updateMe } from './userService';
 import type {
   AppPreferences,
   NotificationPreferences,
@@ -5,69 +6,77 @@ import type {
   UserProfile,
 } from '../features/configuracion/types';
 
-/**
- * Mock data layer for the "Configuración" module.
- *
- * Every function returns a Promise with the exact shape the real API is
- * expected to return, so swapping the body for an `axios` call later does
- * not require touching any component or hook.
- */
-
-const MOCK_LATENCY_MS = 350;
-
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_LATENCY_MS));
-}
-
-let profile: UserProfile = {
-  name: 'Nabila A.',
-  email: 'nabila.admin@rentora.hn',
-  phone: '+504 9999-0000',
-  role: 'Administrador',
-  avatarUrl: null,
+const ROLE_LABEL: Record<string, string> = {
+  renter: 'Inquilino',
+  host: 'Anfitrión',
+  both: 'Anfitrión e inquilino',
+  admin: 'Administrador',
 };
 
-let notificationPreferences: NotificationPreferences = {
+export async function getProfile(): Promise<UserProfile> {
+  const user = await getMe();
+  return {
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: ROLE_LABEL[user.role] ?? user.role,
+    avatarUrl: user.avatarUrl,
+  };
+}
+
+export async function updateProfile(patch: Partial<UserProfile>): Promise<UserProfile> {
+  await updateMe({
+    ...(patch.name ? splitName(patch.name) : {}),
+    ...(patch.email ? { email: patch.email } : {}),
+    ...(patch.phone ? { phone: normalizePhone(patch.phone) } : {}),
+  });
+  return getProfile();
+}
+
+export async function changePassword(input: PasswordChangeInput): Promise<{ success: true }> {
+  await updateMe({
+    current_password: input.currentPassword,
+    password: input.newPassword,
+    password_confirmation: input.newPassword,
+  });
+  return { success: true };
+}
+
+// ponytail: preferencias de notificación e idioma/moneda viven en localStorage —
+// el backend no tiene tabla para ellas. Mover a la API cuando exista el endpoint.
+const DEFAULT_NOTIFICATIONS: NotificationPreferences = {
   payments: { email: true, push: true },
   bookings: { email: true, push: true },
   messages: { email: true, push: false },
   account: { email: true, push: false },
 };
 
-let preferences: AppPreferences = {
-  language: 'es',
-  currency: 'HNL',
-};
+const DEFAULT_PREFERENCES: AppPreferences = { language: 'es', currency: 'HNL' };
 
-export function getProfile(): Promise<UserProfile> {
-  return delay({ ...profile });
+function read<T>(key: string, fallback: T): T {
+  const stored = localStorage.getItem(key);
+  return stored ? (JSON.parse(stored) as T) : fallback;
 }
 
-export function updateProfile(patch: Partial<UserProfile>): Promise<UserProfile> {
-  profile = { ...profile, ...patch };
-  return delay({ ...profile });
+function write<T>(key: string, value: T): T {
+  localStorage.setItem(key, JSON.stringify(value));
+  return value;
 }
 
-export function getNotificationPreferences(): Promise<NotificationPreferences> {
-  return delay(structuredClone(notificationPreferences));
+export async function getNotificationPreferences(): Promise<NotificationPreferences> {
+  return read('rentora.notificationPreferences', DEFAULT_NOTIFICATIONS);
 }
 
-export function updateNotificationPreferences(
+export async function updateNotificationPreferences(
   next: NotificationPreferences,
 ): Promise<NotificationPreferences> {
-  notificationPreferences = next;
-  return delay(structuredClone(notificationPreferences));
+  return write('rentora.notificationPreferences', next);
 }
 
-export function getPreferences(): Promise<AppPreferences> {
-  return delay({ ...preferences });
+export async function getPreferences(): Promise<AppPreferences> {
+  return read('rentora.preferences', DEFAULT_PREFERENCES);
 }
 
-export function updatePreferences(next: AppPreferences): Promise<AppPreferences> {
-  preferences = next;
-  return delay({ ...preferences });
-}
-
-export function changePassword(_input: PasswordChangeInput): Promise<{ success: true }> {
-  return delay({ success: true });
+export async function updatePreferences(next: AppPreferences): Promise<AppPreferences> {
+  return write('rentora.preferences', next);
 }

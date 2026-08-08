@@ -125,14 +125,20 @@ cd rentora
 
 ### Backend
 
+Para desarrollo local basta con PHP 8.2+ y SQLite (no hace falta MySQL ni Redis):
+
 ```bash
 cd backend
 composer install
-cp .env.example .env
 php artisan key:generate
+php artisan storage:link
 php artisan migrate --seed
 php artisan serve
 ```
+
+`storage:link` es necesario para que las fotos de los espacios se sirvan en `/storage`.
+
+La API queda en `http://localhost:8000/api/v1`.
 
 ### Frontend
 
@@ -141,6 +147,51 @@ cd frontend
 npm install
 npm run dev
 ```
+
+La app queda en `http://localhost:5173` y apunta a la API según `VITE_API_URL` (ver `frontend/.env`).
+
+### Cuentas de prueba
+
+| Rol | Correo | Contraseña | Entra a |
+| --- | --- | --- | --- |
+| Anfitrión e inquilino | `host@rentora.com` | `Rentora123!` | `/app` (+ panel en `/dashboard`) |
+| Anfitrión e inquilino | `cliente@rentora.com` | `Rentora123!` | `/app` |
+| Administrador | `admin@rentora.com` | `rentora_secure_password_123!` | `/admin` |
+
+El resto de usuarios sembrados (anfitriones e inquilinos con nombres propios) también usan `Rentora123!`.
+
+### Moderación de espacios
+
+Cuando un anfitrión publica un espacio, este queda en estado `pending_review` y **no aparece** en la
+búsqueda pública hasta que un administrador lo apruebe:
+
+```text
+draft ──publicar──> pending_review ──aprobar──> active
+                           └────────rechazar──> rejected
+```
+
+La aprobación se hace desde **`/admin/espacios`**, iniciando sesión con la cuenta de administrador.
+Rechazar exige un motivo, que le llega al anfitrión como notificación. Solo los usuarios con
+`role = admin` pueden entrar; el resto es redirigido y la API responde 403.
+
+### Comisión de la plataforma
+
+Rentora retiene un porcentaje del total de cada reserva, definido en un único lugar:
+`config/rentora.php` (`platform_fee_percentage`, actualmente **7%**). Se puede sobrescribir con la
+variable de entorno `PLATFORM_FEE_PERCENTAGE`.
+
+La comisión se calcula al crear la reserva y se guarda en `bookings.platform_fee_amount`, así que
+cambiar el porcentaje no altera las reservas ya existentes. Al anfitrión se le muestra el monto
+exacto en la solicitud, antes de aceptarla.
+
+### Fotos de los espacios
+
+Se suben al publicar el espacio (hasta 10, máximo 5 MB cada una, JPG/PNG/WEBP). La primera es la
+principal y es la que aparece en las tarjetas de búsqueda.
+
+Las imágenes se guardan sin redimensionar en `storage/app/public/spaces/{uuid}`. No se generan
+miniaturas porque esta instalación de PHP no tiene las extensiones `gd` ni `imagick`; si se
+instalan, el lugar para agregar los tamaños es `SpacePhotoController::store`.
 
 ---
 

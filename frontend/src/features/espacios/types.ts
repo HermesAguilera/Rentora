@@ -1,4 +1,5 @@
-export type SpaceStatus = 'active' | 'paused';
+/** Espeja `App\Enums\SpaceStatus` del backend. */
+export type SpaceStatus = 'draft' | 'pending_review' | 'active' | 'rejected' | 'paused';
 
 export interface Space {
   id: string;

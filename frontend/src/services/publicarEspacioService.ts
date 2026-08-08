@@ -1,19 +1,31 @@
+import { api } from '../lib/api';
+import { uploadSpacePhotos } from './spacePhotosService';
 import type { NewSpaceInput } from '../features/cliente/publicar/types';
 
 /**
- * Mock data layer for the "Publicar espacio" (list a new space) module.
- *
- * Every function returns a Promise with the exact shape the real API is
- * expected to return, so swapping the body for an `axios` call later does
- * not require touching any component or hook.
+ * Crea el espacio (queda en borrador), sube sus fotos y lo manda a revisión,
+ * que es lo que el usuario entiende por "publicar".
  */
+export async function publishSpace(input: NewSpaceInput): Promise<{ id: string }> {
+  const { data } = await api.post<{ data: { id: string } }>('/spaces', {
+    title: input.title,
+    type: input.category,
+    description: input.description,
+    address: input.address,
+    city: input.city,
+    neighborhood: input.neighborhood || null,
+    price_per_month: input.pricePerMonth,
+    width: input.widthMeters,
+    length: input.lengthMeters,
+    amenities: input.amenities,
+  });
 
-const MOCK_LATENCY_MS = 500;
+  // Las fotos van antes de enviarlo a revisión para que el admin ya las vea.
+  if (input.photos.length > 0) {
+    await uploadSpacePhotos(data.data.id, input.photos);
+  }
 
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_LATENCY_MS));
-}
+  await api.post(`/spaces/${data.data.id}/publish`);
 
-export function publishSpace(_input: NewSpaceInput): Promise<{ id: string }> {
-  return delay({ id: `space-${Date.now()}` });
+  return { id: data.data.id };
 }

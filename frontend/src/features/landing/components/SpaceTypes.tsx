@@ -10,13 +10,13 @@ const SPACE_TYPES = [
     color: 'bg-[#c7e6dd]',
   },
   {
-    title: 'Cuartos exteriores',
-    description: 'Espacio adicional en patios o traseros',
+    title: 'Habitaciones',
+    description: 'Cuartos exteriores con entrada independiente',
     color: 'bg-[#cbc4e8]',
   },
   {
-    title: 'Oficinas pequeñas',
-    description: 'Para trabajo remoto o reuniones',
+    title: 'Closets',
+    description: 'Para cajas, documentos y artículos pequeños',
     color: 'bg-[#faecc4]',
   },
 ];

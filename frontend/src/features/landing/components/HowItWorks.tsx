@@ -13,12 +13,12 @@ const STEPS = [
   {
     number: 3,
     title: 'Reserva y firma',
-    description: 'Solicita el espacio, firma el contrato digital y paga en línea.',
+    description: 'Solicita el espacio y firma el contrato digital desde la plataforma.',
   },
   {
     number: 4,
-    title: 'Acceso 24/7',
-    description: 'Recibe tu código de acceso y ábrelo cuando lo necesites.',
+    title: 'Coordina y usa tu espacio',
+    description: 'El anfitrión confirma la solicitud y acuerdan la entrega por chat.',
   },
 ];
 

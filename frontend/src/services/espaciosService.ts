@@ -1,66 +1,42 @@
-import type { Space } from '../features/espacios/types';
+import { api } from '../lib/api';
+import { areaM2 } from '../lib/catalogs';
+import { useAuthStore } from '../lib/authStore';
+import type { Space, SpaceStatus } from '../features/espacios/types';
 
-/**
- * Mock data layer for the "Mis espacios" module.
- *
- * Every function returns a Promise with the exact shape the real API is
- * expected to return, so swapping the body for an `axios` call later does
- * not require touching any component or hook.
- */
-
-const MOCK_LATENCY_MS = 350;
-
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_LATENCY_MS));
+/** `GET /me/spaces` devuelve el paginador crudo de Eloquent, no un Resource. */
+interface ApiOwnSpace {
+  uuid: string;
+  title: string;
+  status: SpaceStatus;
+  price_per_month: string;
+  city: string;
+  neighborhood: string | null;
+  width_meters: string | null;
+  depth_meters: string | null;
+  primary_photo_url: string | null;
 }
 
-const SPACES: Space[] = [
-  {
-    id: 'space-1',
-    name: 'Bodega Col. Palmira',
-    imageUrl: null,
-    location: 'Tegucigalpa',
-    sizeM2: 40,
-    status: 'active',
-    pricePerMonth: 2500,
-    phone: '+504 9999-0001',
-    email: 'contacto@bodegapalmira.hn',
-  },
-  {
-    id: 'space-2',
-    name: 'Garaje Lomas del Guijarro',
-    imageUrl: null,
-    location: 'Tegucigalpa',
-    sizeM2: 20,
-    status: 'active',
-    pricePerMonth: 800,
-    phone: '+504 9999-0002',
-    email: 'contacto@garajelomas.hn',
-  },
-  {
-    id: 'space-3',
-    name: 'Bodega Miraflores',
-    imageUrl: null,
-    location: 'Tegucigalpa',
-    sizeM2: 15,
-    status: 'active',
-    pricePerMonth: 1800,
-    phone: '+504 9999-0003',
-    email: 'contacto@bodegamiraflores.hn',
-  },
-  {
-    id: 'space-4',
-    name: 'Bodega Res. Honduras',
-    imageUrl: null,
-    location: 'Tegucigalpa',
-    sizeM2: 30,
-    status: 'paused',
-    pricePerMonth: 3200,
-    phone: '+504 9999-0004',
-    email: 'contacto@bodegareshn.hn',
-  },
-];
+/** Pausa un anuncio activo o vuelve a activarlo si estaba pausado. */
+export async function toggleSpaceStatus(id: string, status: SpaceStatus): Promise<void> {
+  await api.post(`/spaces/${id}/${status === 'active' ? 'pause' : 'reactivate'}`);
+}
 
-export function getSpaces(): Promise<Space[]> {
-  return delay([...SPACES]);
+export async function getSpaces(): Promise<Space[]> {
+  const { data } = await api.get<{ data: ApiOwnSpace[] }>('/me/spaces', {
+    params: { per_page: 50 },
+  });
+  const owner = useAuthStore.getState().user;
+
+  return data.data.map((space) => ({
+    id: space.uuid,
+    name: space.title,
+    imageUrl: space.primary_photo_url,
+    location: [space.neighborhood, space.city].filter(Boolean).join(', '),
+    sizeM2: areaM2(space.width_meters, space.depth_meters),
+    status: space.status,
+    pricePerMonth: Number(space.price_per_month),
+    // Los contactos del anuncio son los del anfitrión dueño de la sesión.
+    phone: owner?.phone ?? '',
+    email: owner?.email ?? '',
+  }));
 }

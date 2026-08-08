@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use App\Enums\SpaceType;
 use App\Enums\SpaceStatus;
+use App\Enums\RevieweeType;
 use App\Observers\SpaceObserver;
 
 /**
@@ -97,13 +101,11 @@ class Space extends Model
 
     public function getPrimaryPhotoUrlAttribute(): ?string
     {
-        $primary = $this->photos->where('is_primary', true)->first();
-        if ($primary) {
-            return $primary->path; // Setup storage URL here later if needed
-        }
+        $primary = $this->photos->firstWhere('is_primary', true) ?? $this->photos->first();
 
-        $first = $this->photos->first();
-        return $first ? $first->path : null;
+        return $primary?->path
+            ? \Illuminate\Support\Facades\Storage::disk('public')->url($primary->path)
+            : null;
     }
 
     public function host(): BelongsTo
@@ -116,8 +118,42 @@ class Space extends Model
         return $this->hasMany(SpacePhoto::class, 'space_id')->orderBy('order');
     }
 
+    public function primaryPhoto(): HasOne
+    {
+        return $this->hasOne(SpacePhoto::class, 'space_id')->orderByDesc('is_primary')->orderBy('order');
+    }
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'space_id');
+    }
+
+    /**
+     * Reseñas del espacio: las que los inquilinos dejaron al anfitrión
+     * por una reserva de este espacio.
+     */
+    public function reviews(): HasManyThrough
+    {
+        return $this->hasManyThrough(Review::class, Booking::class, 'space_id', 'booking_id')
+            ->where('reviews.reviewee_type', RevieweeType::HOST->value)
+            ->where('reviews.is_visible', true);
+    }
+
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorites');
+    }
+
+    /** Igual que en User: respeta el agregado precargado con `withAvg` si existe. */
+    public function getAverageRatingAttribute(): float
+    {
+        $preloaded = $this->attributes['average_rating'] ?? null;
+
+        return round((float) ($preloaded ?? $this->reviews()->avg('rating') ?? 0), 1);
+    }
+
+    public function getReviewCountAttribute(): int
+    {
+        return (int) ($this->attributes['review_count'] ?? $this->reviews()->count());
     }
 }

@@ -67,7 +67,7 @@ export default function ReservasPage() {
                       {payment.spaceTitle}
                     </p>
                     <p className="font-['Quicksand',sans-serif] text-xs text-[#8b899e]">
-                      {formatBookingDate(payment.date)} · {payment.paymentMethod}
+                      {formatBookingDate(payment.date)} · {payment.detail}
                     </p>
                   </div>
 

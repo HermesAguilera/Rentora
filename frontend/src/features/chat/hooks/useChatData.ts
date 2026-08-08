@@ -1,9 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getConversations, getMessages, sendMessage } from '../../../services/chatService';
+import { useNavigate } from 'react-router-dom';
+import {
+  getConversations,
+  getMessages,
+  getUnreadMessageCount,
+  sendMessage,
+  startConversationForSpace,
+} from '../../../services/chatService';
 import type { ChatMessage } from '../types';
 
 const chatKeys = {
   conversations: ['chat', 'conversations'] as const,
+  unread: ['chat', 'unread'] as const,
   messages: (conversationId: string) => ['chat', 'messages', conversationId] as const,
 };
 
@@ -55,6 +63,28 @@ export function useSendMessage(conversationId: string | null) {
       if (conversationId) {
         queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) });
       }
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations });
+    },
+  });
+}
+
+export function useUnreadMessages() {
+  return useQuery({
+    queryKey: chatKeys.unread,
+    queryFn: getUnreadMessageCount,
+  });
+}
+
+/** Botón "Contactar al anfitrión": abre la conversación y lleva a Mensajes. */
+export function useStartConversation() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (spaceId: string) => startConversationForSpace(spaceId),
+    onSuccess: (conversationId) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations });
+      navigate(`/app/mensajes?conversacion=${conversationId}`);
     },
   });
 }

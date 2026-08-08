@@ -5,13 +5,23 @@ interface BookingStatusBadgeProps {
 }
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
+  pending: 'PENDIENTE',
+  confirmed: 'CONFIRMADO',
   active: 'ACTIVO',
-  finished: 'FINALIZADO',
+  completed: 'FINALIZADO',
+  disputed: 'EN DISPUTA',
+  cancelled_by_renter: 'CANCELADO',
+  cancelled_by_host: 'CANCELADO',
 };
 
 const STATUS_COLOR: Record<BookingStatus, string> = {
+  pending: 'text-[#f5b544]',
+  confirmed: 'text-[#4d44b5]',
   active: 'text-[#4cbc9a]',
-  finished: 'text-[#fb7d5b]',
+  completed: 'text-[#fb7d5b]',
+  disputed: 'text-[#e2665c]',
+  cancelled_by_renter: 'text-[#a098ae]',
+  cancelled_by_host: 'text-[#a098ae]',
 };
 
 export default function BookingStatusBadge({ status }: BookingStatusBadgeProps) {

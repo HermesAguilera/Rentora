@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  confirmPaymentReceived,
   decidePendingRequest,
   getAvailableIncomeYears,
   getDashboardSummary,
@@ -79,5 +80,16 @@ export function useRecentPayments(page: number) {
     queryKey: dashboardKeys.payments(page),
     queryFn: () => getRecentPayments(page),
     placeholderData: (previous) => previous,
+  });
+}
+
+export function useConfirmPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (bookingId: string) => confirmPaymentReceived(bookingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
   });
 }

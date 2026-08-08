@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getFavoriteSpaces,
   getSpace,
+  getSpaceReviews,
   getSpaces,
   toggleFavorite,
 } from '../../../../services/clienteEspaciosService';
@@ -11,6 +12,7 @@ const clienteEspaciosKeys = {
   spaces: ['cliente', 'espacios'] as const,
   favorites: ['cliente', 'espacios', 'favoritos'] as const,
   space: (id: string) => ['cliente', 'espacios', id] as const,
+  reviews: (id: string) => ['cliente', 'espacios', id, 'resenas'] as const,
 };
 
 export function useSpaces() {
@@ -34,12 +36,21 @@ export function useSpace(id: string) {
   });
 }
 
+export function useSpaceReviews(id: string) {
+  return useQuery({
+    queryKey: clienteEspaciosKeys.reviews(id),
+    queryFn: () => getSpaceReviews(id),
+    enabled: id.length > 0,
+  });
+}
+
 export function useToggleFavorite() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => toggleFavorite(id),
-    onMutate: async (id) => {
+    mutationFn: ({ id, isFavorite }: { id: string; isFavorite: boolean }) =>
+      toggleFavorite(id, isFavorite),
+    onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: clienteEspaciosKeys.spaces });
       const previous = queryClient.getQueryData<ClientSpace[]>(clienteEspaciosKeys.spaces);
 
@@ -53,14 +64,15 @@ export function useToggleFavorite() {
 
       return { previous };
     },
-    onError: (_error, _id, context) => {
+    onError: (_error, _variables, context) => {
       if (context?.previous) {
         queryClient.setQueryData(clienteEspaciosKeys.spaces, context.previous);
       }
     },
-    onSettled: () => {
+    onSettled: (_data, _error, { id }) => {
       queryClient.invalidateQueries({ queryKey: clienteEspaciosKeys.spaces });
       queryClient.invalidateQueries({ queryKey: clienteEspaciosKeys.favorites });
+      queryClient.invalidateQueries({ queryKey: clienteEspaciosKeys.space(id) });
     },
   });
 }

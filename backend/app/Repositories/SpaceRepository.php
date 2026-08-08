@@ -12,16 +12,24 @@ class SpaceRepository
     {
         $query = Space::query()
             ->select([
-                'id', 'uuid', 'host_id', 'title', 'type', 'price_per_month',
+                'id', 'uuid', 'host_id', 'title', 'description', 'type', 'price_per_month',
                 'city', 'neighborhood', 'width_meters', 'depth_meters', 'height_meters', 'status',
-                'created_at'
+                'amenities', 'created_at'
             ])
             ->where('status', SpaceStatus::ACTIVE)
+            ->withAvg('reviews as average_rating', 'rating')
+            ->withCount('reviews as review_count')
+            ->when(auth()->check(), fn($q) => $q->withExists([
+                'favoritedBy as is_favorite' => fn($sub) => $sub->where('users.id', auth()->id()),
+            ]))
             ->with([
-                'host:id,uuid,first_name,last_name,avatar_path,created_at',
-                'photos' => function ($q) {
-                    $q->where('is_primary', true)->orWhere('order', 0)->limit(1);
-                }
+                'host' => fn($q) => $q
+                    ->select('id', 'uuid', 'first_name', 'last_name', 'avatar_path', 'created_at', 'email_verified_at', 'phone_verified_at', 'identity_verified_at', 'role')
+                    ->withAvg('reviewsReceived as average_rating', 'rating'),
+                // Sin filtro: el `orWhere` anterior se salía del scope del espacio y
+                // podía traer fotos de otro. Son pocas por espacio y el Resource
+                // ya escoge la principal.
+                'photos',
             ]);
 
         $query->when(isset($filters['type']), fn($q) => $q->where('type', $filters['type']))

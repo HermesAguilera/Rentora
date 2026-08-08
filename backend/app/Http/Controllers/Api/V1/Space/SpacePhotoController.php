@@ -7,10 +7,10 @@ use App\Models\Space;
 use App\Models\SpacePhoto;
 use App\Http\Requests\Space\UploadPhotoRequest;
 use App\Http\Requests\Space\ReorderPhotosRequest;
-use App\Jobs\ProcessSpacePhoto;
 use App\Http\Resources\SpacePhotoResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class SpacePhotoController extends Controller
 {
@@ -32,30 +32,38 @@ class SpacePhotoController extends Controller
      *   ),
      * )
      */
+    private const MAX_PHOTOS = 10;
+
+    /**
+     * Guarda la foto tal cual en el disco público (`storage/app/public`), servido
+     * en /storage gracias a `php artisan storage:link`.
+     *
+     * ponytail: sin redimensionar. Esta instalación de PHP no trae GD ni Imagick,
+     * así que no hay forma de generar miniaturas; el request ya limita a 5 MB.
+     * Si más adelante hay GD, generar tamaños aquí mismo.
+     */
     public function store(UploadPhotoRequest $request, Space $space): JsonResponse
     {
-        if ($space->photos()->count() >= 10) {
-            return response()->json(['message' => 'Máximo 10 fotos permitidas.'], 400);
+        $count = $space->photos()->count();
+
+        if ($count >= self::MAX_PHOTOS) {
+            return response()->json([
+                'message' => 'Máximo ' . self::MAX_PHOTOS . ' fotos permitidas.',
+            ], 400);
         }
 
-        $file = $request->file('photo');
-        $path = $file->store('temp_photos', 'local');
-
-        $isPrimary = $space->photos()->count() === 0;
+        $path = $request->file('photo')->store("spaces/{$space->uuid}", 'public');
 
         $photo = $space->photos()->create([
-            'original_path' => $path,
-            'is_primary' => $isPrimary,
-            'order' => $space->photos()->count(),
-            'processing' => true,
+            'path' => $path,
+            'is_primary' => $count === 0,
+            'order' => $count,
         ]);
 
-        ProcessSpacePhoto::dispatch($photo);
-
         return response()->json([
-            'message' => 'Foto en proceso.',
-            'data' => new SpacePhotoResource($photo)
-        ], 202);
+            'message' => 'Foto subida exitosamente.',
+            'data' => new SpacePhotoResource($photo),
+        ], 201);
     }
 
     /**
@@ -81,6 +89,10 @@ class SpacePhotoController extends Controller
 
         if ($photo->is_primary && $space->photos()->count() > 1) {
             return response()->json(['message' => 'No puedes eliminar la foto principal si hay otras fotos. Cambia la principal primero.'], 400);
+        }
+
+        if ($photo->path) {
+            Storage::disk('public')->delete($photo->path);
         }
 
         $photo->delete();

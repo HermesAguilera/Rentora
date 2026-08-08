@@ -71,6 +71,7 @@ class UserService
             'total_host_bookings' => $user->hostBookings()->count(),
             'average_rating_given' => (float) $user->reviewsWritten()->avg('rating') ?: 0.0,
             'average_rating_received' => (float) $user->reviewsReceived()->avg('rating') ?: 0.0,
+            'total_reviews_received' => $user->reviewsReceived()->count(),
             'total_spaces_listed' => $user->spaces()->count(),
         ];
     }

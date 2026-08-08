@@ -39,7 +39,7 @@ class BookingController extends BaseApiController
     {
         $space = Space::where('uuid', $request->validated('space_uuid'))->firstOrFail();
 
-        if ($space->user_id === $request->user()->id) {
+        if ($space->host_id === $request->user()->id) {
             return response()->json(['message' => 'Cannot book your own space'], 403);
         }
 
@@ -170,6 +170,34 @@ class BookingController extends BaseApiController
      *   ),
      * )
      */
+    /**
+     * El anfitrión marca que ya recibió el pago de la reserva.
+     *
+     * ponytail: una sola marca por reserva, no un registro por mes. Cuando haya
+     * pasarela de pagos, esto se reemplaza por una tabla `payments` con un
+     * registro por período cobrado.
+     */
+    public function confirmPayment(Booking $booking, Request $request)
+    {
+        $this->authorize('confirmPayment', $booking);
+
+        if ($booking->payment_confirmed_at) {
+            return response()->json(['message' => 'El pago ya estaba confirmado.'], 422);
+        }
+
+        $booking->update(['payment_confirmed_at' => now()]);
+        $booking->loadMissing(['space', 'renter']);
+
+        $booking->renter?->notify(new \App\Notifications\BookingStatusNotification(
+            $booking,
+            'Pago confirmado',
+            "El anfitrión confirmó el pago de {$booking->space?->title}.",
+            '/app/reservas',
+        ));
+
+        return new BookingResource($booking);
+    }
+
     public function complete(Booking $booking, Request $request)
     {
         $this->authorize('complete', $booking);

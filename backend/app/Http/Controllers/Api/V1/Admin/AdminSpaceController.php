@@ -10,7 +10,8 @@ class AdminSpaceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Space::query()->with('host')->latest();
+        // `photos` va precargado porque el accesor primary_photo_url lo consulta por fila.
+        $query = Space::query()->with(['host', 'photos'])->latest();
 
         if ($request->has('status')) {
             $query->where('status', $request->query('status'));
@@ -40,12 +41,22 @@ class AdminSpaceController extends Controller
     public function approve(Space $space)
     {
         $space->status = \App\Enums\SpaceStatus::ACTIVE;
+        $space->published_at ??= now();
         $space->save();
 
         // Notify host
         $space->host->notify(new \App\Notifications\SpaceApprovedNotification($space));
 
+        $this->forgetCachedStats();
+
         return response()->json(['message' => 'Space approved', 'space' => $space]);
+    }
+
+    /** El resumen de admin se cachea 5 minutos; tras moderar debe reflejarse ya. */
+    private function forgetCachedStats(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('admin.stats');
+        \Illuminate\Support\Facades\Cache::forget('public.stats');
     }
 
     public function reject(Request $request, Space $space)
@@ -57,6 +68,8 @@ class AdminSpaceController extends Controller
 
         // Notify host
         $space->host->notify(new \App\Notifications\SpaceRejectedNotification($space, $request->rejection_reason));
+
+        $this->forgetCachedStats();
 
         return response()->json(['message' => 'Space rejected', 'space' => $space]);
     }

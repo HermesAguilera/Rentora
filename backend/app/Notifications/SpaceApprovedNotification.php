@@ -18,7 +18,7 @@ class SpaceApprovedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -38,7 +38,11 @@ class SpaceApprovedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'category' => 'space',
+            'title' => '¡Espacio aprobado!',
+            'description' => "Tu espacio '{$this->space->title}' ya está público.",
+            'space_uuid' => $this->space->uuid,
+            'url' => '/app/espacios/'.$this->space->uuid,
         ];
     }
 }

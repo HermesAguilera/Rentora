@@ -1,46 +1,36 @@
 import { useState } from 'react';
 import type { SubmitEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ImagePlus } from 'lucide-react';
+import { Check } from 'lucide-react';
 import FormField, { inputClass } from '../../../components/shared/FormField';
-import Toggle from '../../../components/shared/Toggle';
+import PhotoPicker from './components/PhotoPicker';
 import { usePublishSpace } from './hooks/usePublicarEspacio';
+import { AMENITIES, CATEGORY_LABEL } from '../../../lib/catalogs';
+import { apiMessage } from '../../../lib/api';
 import type { SpaceCategory } from '../espacios/types';
 
-const CATEGORY_OPTIONS: { value: SpaceCategory; label: string }[] = [
-  { value: 'bodega', label: 'Bodega' },
-  { value: 'garaje', label: 'Garaje' },
-  { value: 'cuarto-exterior', label: 'Cuarto exterior' },
-  { value: 'oficina-pequena', label: 'Oficina pequeña' },
-];
-
-const AMENITY_OPTIONS = [
-  'Acceso 24/7',
-  'Vigilancia',
-  'Cámaras de seguridad',
-  'Acceso vehicular',
-  'Iluminación LED',
-  'Internet incluido',
-  'Aire acondicionado',
-  'Portón eléctrico',
-];
+const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABEL) as [SpaceCategory, string][];
 
 export default function PublicarEspacioPage() {
   const publishSpace = usePublishSpace();
 
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState<SpaceCategory>('bodega');
-  const [sizeM2, setSizeM2] = useState('');
+  const [category, setCategory] = useState<SpaceCategory>('warehouse');
+  const [widthMeters, setWidthMeters] = useState('');
+  const [lengthMeters, setLengthMeters] = useState('');
   const [pricePerMonth, setPricePerMonth] = useState('');
-  const [location, setLocation] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('Tegucigalpa');
+  const [neighborhood, setNeighborhood] = useState('');
   const [description, setDescription] = useState('');
   const [amenities, setAmenities] = useState<string[]>([]);
-  const [available247, setAvailable247] = useState(false);
+  const [photos, setPhotos] = useState<File[]>([]);
 
   const canSubmit =
     title.trim().length > 0 &&
-    location.trim().length > 0 &&
-    Number(sizeM2) > 0 &&
+    address.trim().length > 0 &&
+    city.trim().length > 0 &&
+    description.trim().length > 0 &&
     Number(pricePerMonth) > 0;
 
   function toggleAmenity(amenity: string) {
@@ -55,12 +45,15 @@ export default function PublicarEspacioPage() {
     publishSpace.mutate({
       title: title.trim(),
       category,
-      sizeM2: Number(sizeM2),
+      widthMeters: Number(widthMeters) || 0,
+      lengthMeters: Number(lengthMeters) || 0,
       pricePerMonth: Number(pricePerMonth),
-      location: location.trim(),
+      address: address.trim(),
+      city: city.trim(),
+      neighborhood: neighborhood.trim(),
       description: description.trim(),
       amenities,
-      available247,
+      photos,
     });
   }
 
@@ -72,10 +65,10 @@ export default function PublicarEspacioPage() {
         </span>
         <div>
           <p className="font-['Poppins',sans-serif] text-lg font-bold text-[#2b3073]">
-            ¡Espacio publicado!
+            ¡Espacio enviado a revisión!
           </p>
           <p className="mt-1 font-['Quicksand',sans-serif] text-sm text-[#7d7e93]">
-            {title} ya está visible para otros usuarios en Rentora.
+            {title} será visible para otros usuarios en cuanto el equipo de Rentora lo apruebe.
           </p>
         </div>
         <Link
@@ -95,15 +88,7 @@ export default function PublicarEspacioPage() {
       </h1>
 
       <div className="flex flex-col gap-6 rounded-3xl bg-white p-8 shadow-[0_2px_16px_rgba(43,48,115,0.05)]">
-        <button
-          type="button"
-          className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#e7e8f2] py-10 text-[#a098ae] transition-colors hover:border-[#c1bbeb] hover:text-[#4d44b5]"
-        >
-          <ImagePlus className="size-8" strokeWidth={1.5} />
-          <span className="font-['Quicksand',sans-serif] text-sm font-semibold">
-            Agregar fotos del espacio
-          </span>
-        </button>
+        <PhotoPicker photos={photos} onChange={setPhotos} />
 
         <FormField label="Título del espacio">
           <input
@@ -114,29 +99,19 @@ export default function PublicarEspacioPage() {
           />
         </FormField>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Categoría">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as SpaceCategory)}
               className={inputClass}
             >
-              {CATEGORY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+              {CATEGORY_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
               ))}
             </select>
-          </FormField>
-          <FormField label="Tamaño (m²)">
-            <input
-              type="number"
-              min="1"
-              value={sizeM2}
-              onChange={(e) => setSizeM2(e.target.value)}
-              placeholder="20"
-              className={inputClass}
-            />
           </FormField>
           <FormField label="Precio mensual (L.)">
             <input
@@ -150,14 +125,53 @@ export default function PublicarEspacioPage() {
           </FormField>
         </div>
 
-        <FormField label="Ubicación">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField label="Ancho (m)">
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              value={widthMeters}
+              onChange={(e) => setWidthMeters(e.target.value)}
+              placeholder="4"
+              className={inputClass}
+            />
+          </FormField>
+          <FormField label="Largo (m)">
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              value={lengthMeters}
+              onChange={(e) => setLengthMeters(e.target.value)}
+              placeholder="5"
+              className={inputClass}
+            />
+          </FormField>
+        </div>
+
+        <FormField label="Dirección">
           <input
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="Ej. Col. Palmira, Tegucigalpa"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Ej. Calle Principal, casa #123"
             className={inputClass}
           />
         </FormField>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField label="Ciudad">
+            <input value={city} onChange={(e) => setCity(e.target.value)} className={inputClass} />
+          </FormField>
+          <FormField label="Colonia / barrio">
+            <input
+              value={neighborhood}
+              onChange={(e) => setNeighborhood(e.target.value)}
+              placeholder="Ej. Col. Palmira"
+              className={inputClass}
+            />
+          </FormField>
+        </div>
 
         <FormField label="Descripción" hint="Cuéntale a los interesados qué hace especial tu espacio.">
           <textarea
@@ -174,33 +188,27 @@ export default function PublicarEspacioPage() {
             Comodidades
           </span>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {AMENITY_OPTIONS.map((amenity) => (
-              <label key={amenity} className="flex items-center gap-2.5">
+            {AMENITIES.map(({ value, label }) => (
+              <label key={value} className="flex items-center gap-2.5">
                 <input
                   type="checkbox"
-                  checked={amenities.includes(amenity)}
-                  onChange={() => toggleAmenity(amenity)}
+                  checked={amenities.includes(value)}
+                  onChange={() => toggleAmenity(value)}
                   className="size-4 shrink-0 accent-[#4d44b5]"
                 />
                 <span className="font-['Quicksand',sans-serif] text-sm text-[#2b3073]">
-                  {amenity}
+                  {label}
                 </span>
               </label>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center justify-between rounded-2xl bg-[#f4f5fc] px-4 py-3.5">
-          <div>
-            <p className="font-['Quicksand',sans-serif] text-sm font-semibold text-[#2b3073]">
-              Disponible 24/7
-            </p>
-            <p className="font-['Quicksand',sans-serif] text-xs text-[#8b899e]">
-              El inquilino podrá acceder al espacio en cualquier momento.
-            </p>
-          </div>
-          <Toggle checked={available247} onChange={setAvailable247} label="Disponible 24/7" />
-        </div>
+        {publishSpace.isError && (
+          <p className="font-['Quicksand',sans-serif] text-sm text-[#e2665c]">
+            {apiMessage(publishSpace.error, 'No se pudo publicar el espacio.')}
+          </p>
+        )}
 
         <button
           type="submit"

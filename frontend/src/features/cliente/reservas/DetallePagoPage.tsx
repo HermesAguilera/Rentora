@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Plus } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CreditCard } from 'lucide-react';
 import { formatLempiras } from '../../../utils/currency';
 import {
   useConfirmPayment,
@@ -41,14 +41,6 @@ export default function DetallePagoPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4">
-      <Link
-        to={`/app/espacios/${id}/contrato`}
-        className="flex w-fit items-center gap-2 font-['Quicksand',sans-serif] text-sm font-semibold text-[#8b899e] hover:text-[#2b3073]"
-      >
-        <ArrowLeft className="size-4" />
-        Volver
-      </Link>
-
       <div className="flex flex-col gap-6 rounded-3xl bg-white p-8 shadow-[0_2px_16px_rgba(43,48,115,0.05)]">
         <div>
           <h1 className="font-['Poppins',sans-serif] text-xl font-bold text-[#2b3073]">
@@ -106,13 +98,10 @@ export default function DetallePagoPage() {
             </label>
           ))}
 
-          <button
-            type="button"
-            className="flex items-center gap-2 self-start px-1 py-2 font-['Quicksand',sans-serif] text-sm font-semibold text-[#4d44b5] hover:opacity-80"
-          >
-            <Plus className="size-4" />
-            Agregar método de pago
-          </button>
+          <p className="px-1 pt-1 font-['Quicksand',sans-serif] text-xs text-[#a098ae]">
+            El pago se coordina directamente con el anfitrión. Rentora aún no procesa pagos en
+            línea.
+          </p>
         </fieldset>
 
         <button

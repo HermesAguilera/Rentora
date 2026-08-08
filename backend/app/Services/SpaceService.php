@@ -12,25 +12,38 @@ use Exception;
 
 class SpaceService
 {
+    /** Nombres del request -> columnas reales de la tabla. */
+    private const COLUMN_ALIASES = [
+        'address' => 'address_line',
+        'width' => 'width_meters',
+        'length' => 'depth_meters',
+        'height' => 'height_meters',
+    ];
+
+    private function mapColumns(array $data): array
+    {
+        foreach (self::COLUMN_ALIASES as $from => $to) {
+            if (array_key_exists($from, $data)) {
+                $data[$to] = $data[$from];
+                unset($data[$from]);
+            }
+        }
+
+        return $data;
+    }
+
     public function createSpace(User $host, array $data): Space
     {
+        $data = $this->mapColumns($data);
         $data['host_id'] = $host->id;
         $data['status'] = SpaceStatus::DRAFT;
-        
-        if (isset($data['address'])) {
-            $data['address_line'] = $data['address'];
-            unset($data['address']);
-        }
-        
+
         return Space::create($data);
     }
 
     public function updateSpace(Space $space, array $data): Space
     {
-        if (isset($data['address'])) {
-            $data['address_line'] = $data['address'];
-            unset($data['address']);
-        }
+        $data = $this->mapColumns($data);
 
         if ($space->status === SpaceStatus::ACTIVE) {
             $sensitiveChanges = array_intersect_key($data, array_flip(['price_per_month', 'address_line', 'city', 'neighborhood']));

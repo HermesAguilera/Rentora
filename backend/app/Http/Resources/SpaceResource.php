@@ -14,6 +14,7 @@ class SpaceResource extends JsonResource
         $data = [
             'id' => $this->uuid,
             'title' => $this->title,
+            'description' => $this->description,
             'type' => $this->type,
             'city' => $this->city,
             'neighborhood' => $this->neighborhood,
@@ -23,6 +24,7 @@ class SpaceResource extends JsonResource
             'status' => $this->status?->value,
             'average_rating' => (float) $this->average_rating,
             'review_count' => (int) $this->review_count,
+            'is_favorite' => (bool) ($this->is_favorite ?? false),
             'primary_photo_url' => $this->getPrimaryPhotoUrl(),
             'host' => new UserResource($this->whenLoaded('host')),
             'photos' => SpacePhotoResource::collection($this->whenLoaded('photos')->sortBy('order')),
@@ -48,10 +50,10 @@ class SpaceResource extends JsonResource
     protected function getPrimaryPhotoUrl(): ?string
     {
         $primary = $this->photos->firstWhere('is_primary', true) ?? $this->photos->first();
-        if ($primary && $primary->medium_path) {
-            return \Illuminate\Support\Facades\Storage::disk('s3')->url($primary->medium_path);
-        }
-        return null;
+
+        return $primary?->path
+            ? \Illuminate\Support\Facades\Storage::disk('public')->url($primary->path)
+            : null;
     }
 
     protected function isComplete(): bool

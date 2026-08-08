@@ -1,13 +1,12 @@
 const FEATURES = [
   {
     title: 'Ingresos mensuales',
-    description: 'Cobra de forma automática. Rentora gestiona los pagos por ti.',
+    description: 'Lleva el control de tus alquileres y cobros desde un solo panel.',
     iconBg: 'bg-[rgba(255,98,80,0.2)]',
   },
   {
-    title: 'Arrendatarios verificados',
-    description:
-      'Solo personas con identidad verificada pueden alquilar tu espacio.',
+    title: 'Tú apruebas cada reserva',
+    description: 'Revisa quién solicita tu espacio y acepta solo las reservas que te convengan.',
     iconBg: 'bg-[rgba(0,147,121,0.2)]',
   },
   {

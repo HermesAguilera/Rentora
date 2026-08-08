@@ -1,4 +1,12 @@
-export type BookingStatus = 'active' | 'finished';
+/** Espeja `App\Enums\BookingStatus` del backend. */
+export type BookingStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'active'
+  | 'completed'
+  | 'disputed'
+  | 'cancelled_by_renter'
+  | 'cancelled_by_host';
 
 export interface Booking {
   id: string;

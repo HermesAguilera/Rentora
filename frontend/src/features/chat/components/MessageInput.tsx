@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SubmitEvent } from 'react';
-import { Paperclip, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface MessageInputProps {
   onSend: (text: string) => void;
@@ -28,18 +28,11 @@ export default function MessageInput({ onSend, disabled = false }: MessageInputP
           type="text"
           value={text}
           onChange={(event) => setText(event.target.value)}
-          placeholder="Write your message..."
+          placeholder="Escribe tu mensaje..."
           aria-label="Escribe tu mensaje"
           disabled={disabled}
           className="w-full bg-transparent font-['Quicksand',sans-serif] text-sm text-[#2b3073] placeholder:text-[#a098ae] focus:outline-none"
         />
-        <button
-          type="button"
-          aria-label="Adjuntar archivo"
-          className="shrink-0 text-[#a098ae] transition-colors hover:text-[#4d44b5]"
-        >
-          <Paperclip className="size-5" />
-        </button>
       </label>
 
       <button

@@ -4,7 +4,8 @@ export interface PaymentHistoryItem {
   id: string;
   spaceTitle: string;
   date: string;
-  paymentMethod: string;
+  /** Detalle corto de la reserva: duración y estado. */
+  detail: string;
   amount: number;
   status: PaymentStatus;
 }
@@ -19,7 +20,6 @@ export interface ContractSummary {
   spaceId: string;
   spaceTitle: string;
   ownerName: string;
-  durationLabel: string;
   monthlyPayment: number;
 }
 

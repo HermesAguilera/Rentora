@@ -31,6 +31,12 @@ class BookingPolicy
         return (int)$user->id === (int)$booking->host_id;
     }
 
+    /** Solo el anfitrión, que es quien recibe el dinero. */
+    public function confirmPayment(User $user, Booking $booking): bool
+    {
+        return (int) $user->id === (int) $booking->host_id;
+    }
+
     public function cancel(User $user, Booking $booking): bool
     {
         return $user->id === $booking->renter_id || $user->id === $booking->host_id;

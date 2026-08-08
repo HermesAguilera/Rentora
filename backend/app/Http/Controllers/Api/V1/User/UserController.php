@@ -128,6 +128,21 @@ class UserController extends Controller
      *   ),
      * )
      */
+    /** Deja constancia de que el usuario aceptó los términos y condiciones. */
+    public function acceptTerms(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $user->metadata = array_merge($user->metadata ?? [], [
+            'terms_accepted_at' => now()->toIso8601String(),
+        ]);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Términos aceptados.',
+            'data' => new UserPrivateResource($user),
+        ]);
+    }
+
     public function stats(Request $request): JsonResponse
     {
         $stats = $this->userService->getStats($request->user());

@@ -2,13 +2,17 @@ import { useState } from 'react';
 import { useBookings } from '../hooks/useReservasData';
 import BookingRow from './BookingRow';
 
-type TabFilter = 'all' | 'active' | 'finished';
+type TabFilter = 'all' | 'pending' | 'active' | 'finished';
 
 const TABS: { id: TabFilter; label: string }[] = [
   { id: 'all', label: 'Todas' },
+  { id: 'pending', label: 'Pendientes' },
   { id: 'active', label: 'Activas' },
   { id: 'finished', label: 'Finalizadas' },
 ];
+
+/** Estados del backend que cuentan como "reserva terminada". */
+const FINISHED = ['completed', 'cancelled_by_renter', 'cancelled_by_host'];
 
 export default function BookingsTable() {
   const { data: bookings, isPending, isError } = useBookings();
@@ -16,8 +20,9 @@ export default function BookingsTable() {
 
   const activeCount = bookings?.filter((booking) => booking.status === 'active').length ?? 0;
   const filtered = bookings?.filter((booking) => {
-    if (tab === 'active') return booking.status === 'active';
-    if (tab === 'finished') return booking.status === 'finished';
+    if (tab === 'pending') return booking.status === 'pending';
+    if (tab === 'active') return booking.status === 'active' || booking.status === 'confirmed';
+    if (tab === 'finished') return FINISHED.includes(booking.status);
     return true;
   });
 

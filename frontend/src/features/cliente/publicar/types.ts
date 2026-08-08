@@ -3,10 +3,13 @@ import type { SpaceCategory } from '../espacios/types';
 export interface NewSpaceInput {
   title: string;
   category: SpaceCategory;
-  sizeM2: number;
+  widthMeters: number;
+  lengthMeters: number;
   pricePerMonth: number;
-  location: string;
+  address: string;
+  city: string;
+  neighborhood: string;
   description: string;
   amenities: string[];
-  available247: boolean;
+  photos: File[];
 }

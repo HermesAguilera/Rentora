@@ -30,7 +30,15 @@ export function useContractSummary(spaceId: string) {
 
 export function useSignContract() {
   return useMutation({
-    mutationFn: (spaceId: string) => signContract(spaceId),
+    mutationFn: ({
+      spaceId,
+      startDate,
+      months,
+    }: {
+      spaceId: string;
+      startDate: string;
+      months: number;
+    }) => signContract(spaceId, startDate, months),
   });
 }
 

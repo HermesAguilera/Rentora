@@ -11,7 +11,7 @@ export default function Footer() {
           </span>
         </a>
         <p className="font-['Mulish',sans-serif] text-sm text-[#2b3073]">
-          © 2025 Rentora · Todos los derechos reservados
+          © {new Date().getFullYear()} Rentora · Todos los derechos reservados
         </p>
       </div>
     </footer>

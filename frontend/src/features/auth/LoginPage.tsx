@@ -4,11 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import AuthBrandPanel from './components/AuthBrandPanel';
 import { fieldClass, fieldInputClass as inputClass } from './authFieldStyles';
-import { useLogin } from './hooks/useAuth';
+import { homePathFor, useLogin, useRequestPasswordReset } from './hooks/useAuth';
+import { apiMessage } from '../../lib/api';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const login = useLogin();
+  const resetPassword = useRequestPasswordReset();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +24,7 @@ export default function LoginPage() {
     if (!canSubmit) return;
     login.mutate(
       { email: email.trim(), password },
-      { onSuccess: () => navigate('/app') },
+      { onSuccess: (user) => navigate(homePathFor(user), { replace: true }) },
     );
   }
 
@@ -101,15 +103,23 @@ export default function LoginPage() {
             </label>
             <button
               type="button"
-              className="font-['Quicksand',sans-serif] text-sm font-semibold text-[#4d44b5] hover:opacity-80"
+              disabled={email.trim().length === 0 || resetPassword.isPending}
+              onClick={() => resetPassword.mutate(email.trim())}
+              className="font-['Quicksand',sans-serif] text-sm font-semibold text-[#4d44b5] hover:opacity-80 disabled:opacity-40"
             >
               ¿Olvidaste tu contraseña?
             </button>
           </div>
 
+          {resetPassword.isSuccess && (
+            <p className="font-['Quicksand',sans-serif] text-sm text-[#2fa76f]">
+              Si el correo existe, te enviamos un enlace para restablecer tu contraseña.
+            </p>
+          )}
+
           {login.isError && (
             <p className="font-['Quicksand',sans-serif] text-sm text-[#e2665c]">
-              No se pudo iniciar sesión. Intenta de nuevo.
+              {apiMessage(login.error, 'No se pudo iniciar sesión. Intenta de nuevo.')}
             </p>
           )}
 

@@ -28,7 +28,7 @@ export default function ConversationList({ selectedId, onSelect }: ConversationL
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search here..."
+          placeholder="Buscar conversación..."
           aria-label="Buscar conversación"
           className="w-full bg-transparent font-['Quicksand',sans-serif] text-sm text-[#2b3073] placeholder:text-[#a098ae] focus:outline-none"
         />
@@ -90,7 +90,9 @@ export default function ConversationList({ selectedId, onSelect }: ConversationL
 
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <span className="font-['Quicksand',sans-serif] text-xs text-[#a098ae]">
-                      {formatMessageTime(conversation.lastMessageAt)}
+                      {conversation.lastMessageAt
+                        ? formatMessageTime(conversation.lastMessageAt)
+                        : ''}
                     </span>
                     {conversation.unreadCount > 0 && (
                       <span className="flex size-5 items-center justify-center rounded-full bg-[#fb7d5b] font-['Quicksand',sans-serif] text-[10px] font-semibold text-white">

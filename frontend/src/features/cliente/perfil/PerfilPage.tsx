@@ -4,6 +4,7 @@ import { Star } from 'lucide-react';
 import Avatar from '../../../components/shared/Avatar';
 import FormField, { inputClass } from '../../../components/shared/FormField';
 import { formatMonthYear } from '../../../utils/date';
+import { apiMessage } from '../../../lib/api';
 import { useClientProfile, useUpdateClientProfile } from './hooks/useClientePerfilData';
 
 export default function PerfilPage() {
@@ -13,26 +14,20 @@ export default function PerfilPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [city, setCity] = useState('');
 
   useEffect(() => {
     if (!profile) return;
     setName(profile.name);
     setEmail(profile.email);
     setPhone(profile.phone);
-    setCity(profile.city);
   }, [profile]);
 
   const isDirty =
-    !!profile &&
-    (name !== profile.name ||
-      email !== profile.email ||
-      phone !== profile.phone ||
-      city !== profile.city);
+    !!profile && (name !== profile.name || email !== profile.email || phone !== profile.phone);
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    updateProfile.mutate({ name, email, phone, city });
+    updateProfile.mutate({ name, email, phone });
   }
 
   if (isPending || !profile) {
@@ -52,7 +47,7 @@ export default function PerfilPage() {
           <p className="font-['Poppins',sans-serif] text-base font-bold text-[#2b3073]">
             {profile.name}
           </p>
-          <p className="font-['Quicksand',sans-serif] text-sm text-[#8b899e]">{profile.city}</p>
+          <p className="font-['Quicksand',sans-serif] text-sm text-[#8b899e]">{profile.email}</p>
         </div>
 
         <span className="flex items-center gap-1 font-['Quicksand',sans-serif] text-sm font-semibold text-[#2b3073]">
@@ -108,10 +103,13 @@ export default function PerfilPage() {
               className={inputClass}
             />
           </FormField>
-          <FormField label="Ciudad">
-            <input value={city} onChange={(e) => setCity(e.target.value)} className={inputClass} />
-          </FormField>
         </div>
+
+        {updateProfile.isError && (
+          <p className="font-['Quicksand',sans-serif] text-sm text-[#e2665c]">
+            {apiMessage(updateProfile.error, 'No se pudo guardar el perfil.')}
+          </p>
+        )}
 
         <div className="flex items-center gap-3">
           <button

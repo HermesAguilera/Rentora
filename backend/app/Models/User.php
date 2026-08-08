@@ -9,6 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 
@@ -109,5 +110,27 @@ class User extends Authenticatable
     public function reviewsReceived(): HasMany
     {
         return $this->hasMany(Review::class, 'reviewee_id');
+    }
+
+    public function favoriteSpaces(): BelongsToMany
+    {
+        return $this->belongsToMany(Space::class, 'favorites')->withTimestamps();
+    }
+
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class, 'renter_id');
+    }
+
+    /**
+     * Promedio de las reseñas recibidas. Usa el agregado precargado con
+     * `withAvg('reviewsReceived as average_rating', ...)` si viene en la consulta,
+     * para no disparar una query por cada usuario de una lista.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        $preloaded = $this->attributes['average_rating'] ?? null;
+
+        return round((float) ($preloaded ?? $this->reviewsReceived()->avg('rating') ?? 0), 1);
     }
 }

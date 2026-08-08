@@ -2,6 +2,7 @@ import { Check, X } from 'lucide-react';
 import Avatar from '../../../components/shared/Avatar';
 import { usePendingRequests, useDecidePendingRequest } from '../hooks/useDashboardData';
 import { formatDurationMonths } from '../../../utils/date';
+import { formatLempiras } from '../../../utils/currency';
 
 export default function PendingRequests() {
   const { data: requests, isPending, isError } = usePendingRequests();
@@ -53,7 +54,13 @@ export default function PendingRequests() {
                   <span className="font-medium text-[#5b52c9]">{request.spaceTitle}</span>
                 </p>
                 <p className="font-['Quicksand',sans-serif] text-xs text-[#8b899e]">
-                  {formatDurationMonths(request.durationMonths)}
+                  {formatDurationMonths(request.durationMonths)} ·{' '}
+                  {formatLempiras(request.totalAmount)} en total
+                </p>
+                <p className="font-['Quicksand',sans-serif] text-xs text-[#a098ae]">
+                  Rentora cobra {request.platformFeePercentage}% de comisión (
+                  {formatLempiras(request.platformFee)}). Recibirás{' '}
+                  {formatLempiras(request.hostPayout)}.
                 </p>
               </div>
 

@@ -53,8 +53,8 @@ class BookingService
     public function calculatePricing(Space $space, int $months): array
     {
         $total = $space->price_per_month * $months;
-        $feePercentage = config('rentora.platform_fee_percentage', 10);
-        $fee = $total * ($feePercentage / 100);
+        $feePercentage = (float) config('rentora.platform_fee_percentage');
+        $fee = round($total * ($feePercentage / 100), 2);
         $payout = $total - $fee;
 
         return [

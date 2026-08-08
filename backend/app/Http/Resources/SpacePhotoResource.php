@@ -13,14 +13,8 @@ class SpacePhotoResource extends JsonResource
         return [
             'id' => $this->uuid,
             'is_primary' => (bool) $this->is_primary,
-            'order' => $this->order,
-            'processing' => (bool) $this->processing,
-            'failed' => (bool) $this->failed,
-            'urls' => [
-                'large' => $this->large_path ? Storage::disk('s3')->url($this->large_path) : null,
-                'medium' => $this->medium_path ? Storage::disk('s3')->url($this->medium_path) : null,
-                'thumbnail' => $this->thumbnail_path ? Storage::disk('s3')->url($this->thumbnail_path) : null,
-            ],
+            'order' => (int) $this->order,
+            'url' => $this->path ? Storage::disk('public')->url($this->path) : null,
         ];
     }
 }

@@ -56,6 +56,7 @@ class Booking extends Model
         'host_payout_amount',
         'cancellation_reason',
         'confirmed_at',
+        'payment_confirmed_at',
         'cancelled_at',
         'completed_at',
         'renter_notes',
@@ -72,6 +73,7 @@ class Booking extends Model
             'platform_fee_amount' => 'decimal:2',
             'host_payout_amount' => 'decimal:2',
             'confirmed_at' => 'datetime',
+            'payment_confirmed_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'completed_at' => 'datetime',
         ];

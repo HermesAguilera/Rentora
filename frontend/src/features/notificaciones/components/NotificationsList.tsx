@@ -5,12 +5,14 @@ interface NotificationsListProps {
   notifications: Notification[] | undefined;
   isPending: boolean;
   isError: boolean;
+  onOpen: (notification: Notification) => void;
 }
 
 export default function NotificationsList({
   notifications,
   isPending,
   isError,
+  onOpen,
 }: NotificationsListProps) {
   if (isError) {
     return (
@@ -47,7 +49,7 @@ export default function NotificationsList({
   return (
     <ul className="flex flex-col gap-3">
       {notifications.map((notification) => (
-        <NotificationCard key={notification.id} notification={notification} />
+        <NotificationCard key={notification.id} notification={notification} onOpen={onOpen} />
       ))}
     </ul>
   );

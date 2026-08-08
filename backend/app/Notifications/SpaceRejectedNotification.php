@@ -18,7 +18,7 @@ class SpaceRejectedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -38,7 +38,12 @@ class SpaceRejectedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'category' => 'space',
+            'title' => 'Tu espacio no fue aprobado',
+            'description' => "'{$this->space->title}': {$this->reason}",
+            'space_uuid' => $this->space->uuid,
+            // Se corrige desde "Mis espacios" y se vuelve a enviar a revisión.
+            'url' => '/dashboard/espacios',
         ];
     }
 }

@@ -1,5 +1,9 @@
 <?php
 
+// PHP 8.5 marca constantes de PDO usadas por config/database.php de Laravel como deprecadas.
+// Con display_errors=On esos avisos se imprimen dentro del body y rompen el JSON de la API.
+ini_set('display_errors', '0');
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

@@ -4,10 +4,11 @@ export type CategoryFilter = 'all' | SpaceCategory;
 
 const TABS: { id: CategoryFilter; label: string }[] = [
   { id: 'all', label: 'Todas' },
-  { id: 'bodega', label: 'Bodegas' },
-  { id: 'garaje', label: 'Garajes' },
-  { id: 'cuarto-exterior', label: 'Cuartos exteriores' },
-  { id: 'oficina-pequena', label: 'Oficinas pequeñas' },
+  { id: 'warehouse', label: 'Bodegas' },
+  { id: 'garage', label: 'Garajes' },
+  { id: 'room', label: 'Habitaciones' },
+  { id: 'closet', label: 'Closets' },
+  { id: 'other', label: 'Otros' },
 ];
 
 interface CategoryTabsProps {

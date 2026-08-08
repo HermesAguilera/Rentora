@@ -1,178 +1,116 @@
-import type { ClientSpace, ClientSpaceDetail } from '../features/cliente/espacios/types';
+import { api } from '../lib/api';
+import { areaM2 } from '../lib/catalogs';
+import type {
+  ClientSpace,
+  ClientSpaceDetail,
+  SpaceCategory,
+  SpaceReview,
+} from '../features/cliente/espacios/types';
 
-/**
- * Mock data layer for the client-facing "Inicio" / space browsing module.
- *
- * Every function returns a Promise with the exact shape the real API is
- * expected to return, so swapping the body for an `axios` call later does
- * not require touching any component or hook.
- */
-
-const MOCK_LATENCY_MS = 350;
-
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_LATENCY_MS));
+/** `SpacePublicResource` del backend. */
+export interface ApiSpace {
+  id: string;
+  title: string;
+  description?: string;
+  type: SpaceCategory;
+  city: string;
+  neighborhood: string | null;
+  price_per_month: number;
+  size_description: string | null;
+  amenities: string[];
+  status: string;
+  average_rating: number;
+  review_count: number;
+  is_favorite: boolean;
+  primary_photo_url: string | null;
+  photos?: { id: string; url: string | null; is_primary: boolean; order: number }[];
+  host?: {
+    id: string;
+    name: string;
+    avatar_url: string | null;
+    rating: number;
+    is_verified: boolean;
+  };
 }
 
-let SPACES: ClientSpace[] = [
-  {
-    id: 'space-1',
-    title: 'Bodega Amalia',
-    location: 'Col. Palmira',
-    distanceKm: 7.4,
-    category: 'bodega',
-    sizeM2: 20,
-    available247: true,
-    verified: true,
-    rating: 4.9,
-    pricePerMonth: 2500,
-    imageUrl: null,
-    favorite: true,
-  },
-  {
-    id: 'space-2',
-    title: 'Garaje Lomas del Guijarro',
-    location: 'Lomas del Guijarro',
-    distanceKm: 3.1,
-    category: 'garaje',
-    sizeM2: 12,
-    available247: true,
-    verified: true,
-    rating: 4.7,
-    pricePerMonth: 800,
-    imageUrl: null,
-    favorite: false,
-  },
-  {
-    id: 'space-3',
-    title: 'Cuarto exterior Miraflores',
-    location: 'Miraflores',
-    distanceKm: 5.8,
-    category: 'cuarto-exterior',
-    sizeM2: 16,
-    available247: false,
-    verified: true,
-    rating: 4.6,
-    pricePerMonth: 1800,
-    imageUrl: null,
-    favorite: false,
-  },
-  {
-    id: 'space-4',
-    title: 'Oficina pequeña Palmira',
-    location: 'Col. Palmira',
-    distanceKm: 6.2,
-    category: 'oficina-pequena',
-    sizeM2: 18,
-    available247: false,
-    verified: true,
-    rating: 4.8,
-    pricePerMonth: 3200,
-    imageUrl: null,
-    favorite: false,
-  },
-  {
-    id: 'space-5',
-    title: 'Bodega Kennedy',
-    location: 'Coronel Kennedy',
-    distanceKm: 9.5,
-    category: 'bodega',
-    sizeM2: 22,
-    available247: true,
-    verified: true,
-    rating: 4.5,
-    pricePerMonth: 2100,
-    imageUrl: null,
-    favorite: false,
-  },
-  {
-    id: 'space-6',
-    title: 'Garaje Los Próceres',
-    location: 'Los Próceres',
-    distanceKm: 4.4,
-    category: 'garaje',
-    sizeM2: 14,
-    available247: true,
-    verified: true,
-    rating: 4.9,
-    pricePerMonth: 950,
-    imageUrl: null,
-    favorite: true,
-  },
-];
-
-const DETAIL_EXTRAS: Record<
-  string,
-  Pick<ClientSpaceDetail, 'description' | 'amenities' | 'ownerName' | 'ownerAvatarUrl' | 'ownerRating'>
-> = {
-  'space-1': {
-    description:
-      'Bodega techada con acceso vehicular directo, ideal para almacenamiento de mercadería o mudanza temporal. Piso de concreto pulido y buena ventilación.',
-    amenities: ['Acceso 24/7', 'Vigilancia', 'Cámaras de seguridad', 'Acceso vehicular', 'Iluminación LED'],
-    ownerName: 'Ana Reyes',
-    ownerAvatarUrl: null,
-    ownerRating: 4.9,
-  },
-  'space-2': {
-    description:
-      'Garaje techado en zona residencial segura, con portón eléctrico y espacio para un vehículo mediano.',
-    amenities: ['Acceso 24/7', 'Portón eléctrico', 'Vigilancia'],
-    ownerName: 'Luis Bonilla',
-    ownerAvatarUrl: null,
-    ownerRating: 4.7,
-  },
-  'space-3': {
-    description:
-      'Cuarto exterior independiente con entrada propia, ideal para bodega personal o taller pequeño.',
-    amenities: ['Entrada independiente', 'Toma eléctrica', 'Piso de cemento'],
-    ownerName: 'Karen Hernández',
-    ownerAvatarUrl: null,
-    ownerRating: 4.6,
-  },
-  'space-4': {
-    description:
-      'Oficina pequeña amueblada en zona comercial, con internet de alta velocidad y área de recepción compartida.',
-    amenities: ['Internet incluido', 'Mobiliario básico', 'Aire acondicionado', 'Recepción compartida'],
-    ownerName: 'Diego Flores',
-    ownerAvatarUrl: null,
-    ownerRating: 4.8,
-  },
-  'space-5': {
-    description:
-      'Bodega amplia con acceso para camiones de carga, ubicada cerca de las principales vías de la ciudad.',
-    amenities: ['Acceso 24/7', 'Acceso para camiones', 'Vigilancia', 'Cámaras de seguridad'],
-    ownerName: 'María López',
-    ownerAvatarUrl: null,
-    ownerRating: 4.5,
-  },
-  'space-6': {
-    description:
-      'Garaje seguro en Los Próceres, techado y con acceso controlado, a pocos minutos del centro.',
-    amenities: ['Acceso 24/7', 'Acceso controlado', 'Techado'],
-    ownerName: 'Diego Flores',
-    ownerAvatarUrl: null,
-    ownerRating: 4.9,
-  },
-};
-
-export function getSpaces(): Promise<ClientSpace[]> {
-  return delay([...SPACES]);
+interface ApiReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  reviewer?: { name: string; avatar_url: string | null };
 }
 
-export function getFavoriteSpaces(): Promise<ClientSpace[]> {
-  return delay(SPACES.filter((space) => space.favorite));
+/** "3m × 4m × 2.5m" -> ancho × largo en m². */
+function sizeFromDescription(sizeDescription: string | null): number {
+  if (!sizeDescription) return 0;
+  const [width, depth] = sizeDescription.split('×').map((part) => parseFloat(part));
+  return areaM2(width, depth);
 }
 
-export function getSpace(id: string): Promise<ClientSpaceDetail | null> {
-  const space = SPACES.find((item) => item.id === id);
-  if (!space) return delay(null);
-  const extras = DETAIL_EXTRAS[id];
-  return delay({ ...space, ...extras });
+export function toClientSpace(space: ApiSpace): ClientSpace {
+  return {
+    id: space.id,
+    title: space.title,
+    location: [space.neighborhood, space.city].filter(Boolean).join(', '),
+    category: space.type,
+    sizeM2: sizeFromDescription(space.size_description),
+    available247: space.amenities.includes('24h_access'),
+    verified: space.host?.is_verified ?? false,
+    rating: space.average_rating,
+    reviewCount: space.review_count,
+    pricePerMonth: space.price_per_month,
+    imageUrl: space.primary_photo_url,
+    favorite: space.is_favorite,
+  };
 }
 
-export function toggleFavorite(id: string): Promise<ClientSpace | null> {
-  SPACES = SPACES.map((space) =>
-    space.id === id ? { ...space, favorite: !space.favorite } : space,
-  );
-  return delay(SPACES.find((space) => space.id === id) ?? null);
+export async function getSpaces(): Promise<ClientSpace[]> {
+  const { data } = await api.get<{ data: ApiSpace[] }>('/spaces', { params: { per_page: 30 } });
+  return data.data.map(toClientSpace);
+}
+
+export async function getFavoriteSpaces(): Promise<ClientSpace[]> {
+  const { data } = await api.get<{ data: ApiSpace[] }>('/me/favorites');
+  // El endpoint solo devuelve favoritos, así que el flag siempre va en true.
+  return data.data.map((space) => ({ ...toClientSpace(space), favorite: true }));
+}
+
+export async function getSpace(id: string): Promise<ClientSpaceDetail | null> {
+  const { data } = await api.get<{ data: ApiSpace }>(`/spaces/${id}`);
+  const space = data.data;
+
+  // La principal va primero para que sea la que se muestra al abrir el detalle.
+  const photos = [...(space.photos ?? [])]
+    .filter((photo) => photo.url !== null)
+    .sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.order - b.order)
+    .map((photo) => ({ id: photo.id, url: photo.url }));
+
+  return {
+    ...toClientSpace(space),
+    description: space.description ?? '',
+    amenities: space.amenities,
+    photos,
+    ownerName: space.host?.name ?? 'Anfitrión',
+    ownerAvatarUrl: space.host?.avatar_url ?? null,
+    ownerRating: space.host?.rating ?? 0,
+  };
+}
+
+export async function getSpaceReviews(id: string): Promise<SpaceReview[]> {
+  const { data } = await api.get<{ data: ApiReview[] }>(`/spaces/${id}/reviews`);
+
+  return data.data.map((review) => ({
+    id: review.id,
+    authorName: review.reviewer?.name ?? 'Inquilino',
+    authorAvatarUrl: review.reviewer?.avatar_url ?? null,
+    rating: review.rating,
+    comment: review.comment ?? '',
+    date: review.created_at,
+  }));
+}
+
+export async function toggleFavorite(id: string, isFavorite: boolean): Promise<void> {
+  if (isFavorite) await api.delete(`/spaces/${id}/favorite`);
+  else await api.post(`/spaces/${id}/favorite`);
 }

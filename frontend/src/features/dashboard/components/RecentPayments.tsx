@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Receipt } from 'lucide-react';
-import { useRecentPayments } from '../hooks/useDashboardData';
+import { Check, ChevronLeft, ChevronRight, Receipt } from 'lucide-react';
+import { useConfirmPayment, useRecentPayments } from '../hooks/useDashboardData';
 import { formatLempiras } from '../../../utils/currency';
 import { formatShortDate } from '../../../utils/date';
+import { apiMessage } from '../../../lib/api';
 import type { PaymentStatus } from '../types';
 
 const STATUS_LABEL: Record<PaymentStatus, string> = {
@@ -18,6 +19,7 @@ const STATUS_STYLES: Record<PaymentStatus, { text: string; iconBg: string }> = {
 export default function RecentPayments() {
   const [page, setPage] = useState(1);
   const { data, isPending, isError, isPlaceholderData } = useRecentPayments(page);
+  const confirmPayment = useConfirmPayment();
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.perPage)) : 1;
 
@@ -71,20 +73,41 @@ export default function RecentPayments() {
                   </p>
                 </div>
 
-                <div className="shrink-0 text-right">
-                  <p className="font-['Poppins',sans-serif] text-sm font-bold text-[#2b3073]">
-                    {formatLempiras(payment.amount)}
-                  </p>
-                  <p
-                    className={`font-['Quicksand',sans-serif] text-xs font-semibold ${style.text}`}
-                  >
-                    {STATUS_LABEL[payment.status]}
-                  </p>
+                <div className="flex shrink-0 items-center gap-3">
+                  <div className="text-right">
+                    <p className="font-['Poppins',sans-serif] text-sm font-bold text-[#2b3073]">
+                      {formatLempiras(payment.amount)}
+                    </p>
+                    <p
+                      className={`font-['Quicksand',sans-serif] text-xs font-semibold ${style.text}`}
+                    >
+                      {STATUS_LABEL[payment.status]}
+                    </p>
+                  </div>
+
+                  {payment.canConfirm && (
+                    <button
+                      type="button"
+                      onClick={() => confirmPayment.mutate(payment.id)}
+                      disabled={confirmPayment.isPending}
+                      title="Marcar que ya recibiste este pago"
+                      className="flex items-center gap-1.5 rounded-full bg-[#e5f4ec] px-3 py-1.5 font-['Quicksand',sans-serif] text-xs font-semibold text-[#2fa76f] transition-opacity hover:opacity-80 disabled:opacity-40"
+                    >
+                      <Check className="size-3.5" strokeWidth={2.5} />
+                      Confirmar pago
+                    </button>
+                  )}
                 </div>
               </li>
             );
           })}
         </ul>
+      )}
+
+      {confirmPayment.isError && (
+        <p className="font-['Quicksand',sans-serif] text-sm text-[#e2665c]">
+          {apiMessage(confirmPayment.error, 'No se pudo confirmar el pago.')}
+        </p>
       )}
 
       {data && totalPages > 1 && (

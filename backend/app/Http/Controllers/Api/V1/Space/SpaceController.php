@@ -75,7 +75,18 @@ class SpaceController extends Controller
             abort(404);
         }
 
-        $space->load(['host', 'photos' => fn($q) => $q->orderBy('order')]);
+        $space->load([
+            'host' => fn($q) => $q->withAvg('reviewsReceived as average_rating', 'rating'),
+            'photos' => fn($q) => $q->orderBy('order'),
+        ]);
+        $space->loadAvg('reviews as average_rating', 'rating')
+              ->loadCount('reviews as review_count');
+
+        if ($request->user()) {
+            $space->loadExists([
+                'favoritedBy as is_favorite' => fn($q) => $q->where('users.id', $request->user()->id),
+            ]);
+        }
         
         $this->spaceService->incrementViewCount($space);
 

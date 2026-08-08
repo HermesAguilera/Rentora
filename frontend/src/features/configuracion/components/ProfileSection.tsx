@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { SubmitEvent } from 'react';
-import { Camera } from 'lucide-react';
 import Avatar from '../../../components/shared/Avatar';
 import FormField, { inputClass } from '../../../components/shared/FormField';
 import { useProfile, useUpdateProfile } from '../hooks/useConfiguracionData';
@@ -41,16 +40,7 @@ export default function ProfileSection() {
   return (
     <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-6">
       <div className="flex items-center gap-4">
-        <div className="relative">
-          <Avatar name={profile.name} imageUrl={profile.avatarUrl} size={80} />
-          <button
-            type="button"
-            aria-label="Cambiar foto de perfil"
-            className="absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full bg-[#4d44b5] text-white"
-          >
-            <Camera className="size-3.5" />
-          </button>
-        </div>
+        <Avatar name={profile.name} imageUrl={profile.avatarUrl} size={80} />
         <div>
           <p className="font-['Poppins',sans-serif] text-base font-bold text-[#2b3073]">
             {profile.name}

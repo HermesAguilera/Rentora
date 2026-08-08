@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 
 interface SpacesToolbarProps {
@@ -20,13 +21,13 @@ export default function SpacesToolbar({ search, onSearchChange }: SpacesToolbarP
         />
       </label>
 
-      <button
-        type="button"
+      <Link
+        to="/app/publicar"
         className="flex items-center gap-2 rounded-full bg-[#4d44b5] px-6 py-4 font-['Poppins',sans-serif] text-sm text-white shadow-[0_20px_25px_rgba(191,21,108,0.05)]"
       >
         <Plus className="size-4" strokeWidth={2.5} />
         Nuevo espacio
-      </button>
+      </Link>
     </div>
   );
 }

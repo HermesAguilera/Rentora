@@ -1,37 +1,27 @@
+import { getMe, getMyStats, normalizePhone, splitName, updateMe } from './userService';
 import type { ClientProfile } from '../features/cliente/perfil/types';
 
-/**
- * Mock data layer for the client-facing "Perfil" module.
- *
- * Every function returns a Promise with the exact shape the real API is
- * expected to return, so swapping the body for an `axios` call later does
- * not require touching any component or hook.
- */
+export async function getClientProfile(): Promise<ClientProfile> {
+  const [user, stats] = await Promise.all([getMe(), getMyStats()]);
 
-const MOCK_LATENCY_MS = 350;
-
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_LATENCY_MS));
+  return {
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    avatarUrl: user.avatarUrl,
+    memberSince: user.memberSince,
+    rating: stats.average_rating_received,
+    reviewsCount: stats.total_reviews_received,
+    spacesCount: stats.total_spaces_listed,
+    reservationsCount: stats.total_renter_bookings,
+  };
 }
 
-let profile: ClientProfile = {
-  name: 'Erick Sánchez',
-  email: 'erick.sanchez@correo.com',
-  phone: '+504 98/76-5432',
-  city: 'Tegucigalpa',
-  avatarUrl: null,
-  memberSince: '2024-02-01',
-  rating: 4.9,
-  reviewsCount: 25,
-  spacesCount: 2,
-  reservationsCount: 1,
-};
-
-export function getClientProfile(): Promise<ClientProfile> {
-  return delay({ ...profile });
-}
-
-export function updateClientProfile(patch: Partial<ClientProfile>): Promise<ClientProfile> {
-  profile = { ...profile, ...patch };
-  return delay({ ...profile });
+export async function updateClientProfile(patch: Partial<ClientProfile>): Promise<ClientProfile> {
+  await updateMe({
+    ...(patch.name ? splitName(patch.name) : {}),
+    ...(patch.email ? { email: patch.email } : {}),
+    ...(patch.phone ? { phone: normalizePhone(patch.phone) } : {}),
+  });
+  return getClientProfile();
 }

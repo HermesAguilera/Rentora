@@ -33,14 +33,14 @@ export default function Hero() {
                 Bodega
               </p>
               <p className="font-['Quicksand',sans-serif] text-sm text-[#7f7c7c]">
-                Tegucigalpa · 7.4 km
+                Col. Palmira, Tegucigalpa
               </p>
               <div className="flex gap-2">
                 <span className="rounded-[15px] bg-[#d9d9d9] px-3 py-1 font-['Quicksand',sans-serif] text-xs text-[#2c307b]">
-                  20 m²
+                  40 m²
                 </span>
                 <span className="rounded-[15px] bg-[#d9d9d9] px-3 py-1 font-['Quicksand',sans-serif] text-xs text-[#2c307b]">
-                  Autos
+                  Techado
                 </span>
                 <span className="rounded-[15px] bg-[#d9d9d9] px-3 py-1 font-['Quicksand',sans-serif] text-xs text-[#2c307b]">
                   24/7

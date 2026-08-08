@@ -14,6 +14,9 @@ use App\Http\Middleware\EnsureUserIsActive;
 */
 
 Route::prefix('v1')->group(function () {
+    // Cifras públicas de la landing
+    Route::get('stats', [\App\Http\Controllers\Api\V1\PublicStatsController::class, 'index']);
+
     // Auth Routes
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
@@ -42,6 +45,7 @@ Route::prefix('v1')->group(function () {
             Route::patch('me', [UserController::class, 'updateProfile']);
             Route::post('me/avatar', [UserController::class, 'uploadAvatar']);
             Route::get('me/stats', [UserController::class, 'stats']);
+            Route::post('me/accept-terms', [UserController::class, 'acceptTerms']);
         });
 
         Route::get('{user:uuid}', [UserController::class, 'show']);
@@ -89,6 +93,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\V1\BookingController::class, 'index']);
             Route::get('{booking:uuid}', [\App\Http\Controllers\Api\V1\BookingController::class, 'show']);
             Route::post('{booking:uuid}/confirm', [\App\Http\Controllers\Api\V1\BookingController::class, 'confirm']);
+            Route::post('{booking:uuid}/confirm-payment', [\App\Http\Controllers\Api\V1\BookingController::class, 'confirmPayment']);
             Route::post('{booking:uuid}/cancel', [\App\Http\Controllers\Api\V1\BookingController::class, 'cancel']);
             Route::post('{booking:uuid}/complete', [\App\Http\Controllers\Api\V1\BookingController::class, 'complete']);
             Route::post('{booking:uuid}/dispute', [\App\Http\Controllers\Api\V1\BookingController::class, 'dispute']);
@@ -99,6 +104,20 @@ Route::prefix('v1')->group(function () {
             Route::post('/', [\App\Http\Controllers\Api\V1\ReviewController::class, 'store']);
             Route::post('{review:uuid}/flag', [\App\Http\Controllers\Api\V1\ReviewController::class, 'flag']);
         });
+
+        // Favoritos
+        Route::get('me/favorites', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'index']);
+        Route::post('spaces/{space:uuid}/favorite', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'store']);
+        Route::delete('spaces/{space:uuid}/favorite', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'destroy']);
+
+        // Mensajería
+        Route::prefix('conversations')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\V1\ConversationController::class, 'index']);
+            Route::get('unread-count', [\App\Http\Controllers\Api\V1\ConversationController::class, 'unreadCount']);
+            Route::get('{conversation:uuid}/messages', [\App\Http\Controllers\Api\V1\ConversationController::class, 'messages']);
+            Route::post('{conversation:uuid}/messages', [\App\Http\Controllers\Api\V1\ConversationController::class, 'store']);
+        });
+        Route::post('spaces/{space:uuid}/conversation', [\App\Http\Controllers\Api\V1\ConversationController::class, 'startForSpace']);
     });
 
     // Public Reviews Routes

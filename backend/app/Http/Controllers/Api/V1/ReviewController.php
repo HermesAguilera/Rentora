@@ -40,14 +40,14 @@ class ReviewController extends Controller
 
         $user = $request->user();
         $isRenter = $user->id === $booking->renter_id;
-        $isHost = $user->id === $booking->space->user_id;
+        $isHost = $user->id === $booking->space->host_id;
 
         if (!$isRenter && !$isHost) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $revieweeType = $isRenter ? 'host' : 'renter';
-        $revieweeId = $isRenter ? $booking->space->user_id : $booking->renter_id;
+        $revieweeId = $isRenter ? $booking->space->host_id : $booking->renter_id;
 
         $existing = Review::where('booking_id', $booking->id)
             ->where('reviewer_id', $user->id)
@@ -87,7 +87,7 @@ class ReviewController extends Controller
     public function spaceReviews(Space $space)
     {
         $reviews = Review::where('reviewee_type', 'host')
-            ->where('reviewee_id', $space->user_id)
+            ->where('reviewee_id', $space->host_id)
             ->whereHas('booking', function ($q) use ($space) {
                 $q->where('space_id', $space->id);
             })
